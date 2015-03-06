@@ -1,0 +1,210 @@
+<html>
+<head>
+<title>apr2aw &ndash; A Pound oR 2 A Week</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
+<!-- look ma, no jQuery! -->
+<script>
+
+google.load('visualization', '1', {packages: ['corechart']});
+google.setOnLoadCallback(drawChart);
+
+function drawChart() {
+
+	//console.log = function() {}
+	var startingWeight = parseInt(document.getElementById("startingWeight").value);
+	//console.log("startingWeight: " +startingWeight);
+
+	var goalWeight = parseInt(document.getElementById("goalWeight").value);
+	//console.log("goalWeight: " +goalWeight);
+	
+	var weightLossPerWeek = parseInt(document.querySelector('input[name="weightLossPerWeek"]:checked').value);
+	//console.log("weightLossPerWeek: " +weightLossPerWeek);
+	
+	var numberOfWeeks = (startingWeight-goalWeight)/ weightLossPerWeek
+	var numberOfDays = numberOfWeeks * 7
+	
+	var timeUnit = document.querySelector('input[name="timeUnit"]:checked');
+	//console.log("timeUnit: " + timeUnit.value);
+	
+	var startingDate = document.getElementById("startingDate").value;
+	//console.log("Starting date: " + startingDate);
+	var dt = new Date(startingDate.toString());
+	//console.log("starting dt:" + dt);
+	if(dt == 'Invalid Date'){	
+		//console.log("invalid date entered");
+		dt = new Date();
+		document.getElementById("startingDate").value =  (dt.getMonth() +1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+		//console.log("fallback date used: " + dt);		
+	}
+	
+	var data = new google.visualization.DataTable();
+	
+	if(timeUnit.value != "dt"){
+		data.addColumn('number', 'X');
+	}else{
+		data.addColumn('date','Date');
+	}
+	data.addColumn('number', 'Target Weight');
+
+	var weight = startingWeight;
+	
+	var options = {};
+	var ticks = [];
+	var hAxisTitle = "";
+	
+	if(timeUnit.value == "w"){
+		hAxisTitle = "Week";
+		for (i=0; i <=numberOfWeeks; i++){
+				data.addRows([
+					[i, weight]
+				]);
+			weight = (weight - (weightLossPerWeek));
+			ticks.push(i);
+		  }
+	
+	//show days
+	}else if(timeUnit.value == "d"){
+		hAxisTitle = "Day";
+		for (i=0; i <=numberOfDays; i++){
+				data.addRows([
+					[i, weight]
+				]);
+			weight = (weight - (weightLossPerWeek/7));
+			ticks.push(i)
+		}
+	//show date
+	}else {
+		hAxisTitle = "Date";
+		console.log("date: " + dt);
+		
+		for (i=0; i <=numberOfDays; i++){
+				//console.log(i +" dt: " + dt);
+				//console.log(i + "wt: " + weight);
+				data.addRows([
+					[new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0), weight]
+				]);
+		
+			weight = (weight - (weightLossPerWeek/7));
+			ticks.push(new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0));
+			dt.setTime(dt.getTime() + 86400000 );
+			//console.log("next date: " + dt);
+			
+		}
+	}
+	
+	var oWidth = window.screen.availWidth;
+	oWidth = oWidth - (.2 * oWidth);
+	var oHeight = window.screen.availHeight;
+	oHeight = oHeight - (.2 * oHeight);
+	
+	options = {
+		allowRedraw: true,
+		width: oWidth,
+		height: oHeight,
+		hAxis: {
+		  title: hAxisTitle,
+		  ticks: ticks
+		},
+		vAxis: {
+		  title: 'Weight'
+		}
+	};
+	if(timeUnit.value == 'dt'){
+		options.hAxis.format = 'M/dd/yy';
+	}
+	
+	var chart = new google.visualization.LineChart(document.getElementById('apr2awChart'));
+	
+	
+	chart.draw(data, options);
+	storeLocally();
+	
+}
+
+function storeLocally(){
+	if(typeof(Storage) !== "undefined") {
+		localStorage.setItem("startingDate", document.getElementById("startingDate").value);
+		localStorage.setItem("startingWeight", document.getElementById("startingWeight").value);
+		localStorage.setItem("goalWeight",document.getElementById("goalWeight").value);
+		localStorage.setItem("weightLossPerWeek", document.querySelector('input[name="weightLossPerWeek"]:checked').value);
+		localStorage.setItem("timeUnit", document.querySelector('input[name="timeUnit"]:checked').value);
+		//console.log("data stored locally");
+} else {
+    alert("Apologies, your browser does not support local storage of data.");
+}
+}
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+  if(localStorage.startingDate != null){
+	document.getElementById("startingDate").value = localStorage.startingDate;
+  }
+  if(localStorage.startingWeight != null){
+	document.getElementById("startingWeight").value = localStorage.startingWeight;
+  }
+  if(localStorage.goalWeight != null){
+	document.getElementById("goalWeight").value = localStorage.goalWeight;
+  }
+  if(localStorage.weightLossPerWeek != null){
+	//document.getElementById("weightLossPerWeek").value = localStorage.weightLossPerWeek;
+	var weightLossPerWeekRdo = document.apr2awFrm.weightLossPerWeek;
+	for (var i=0; i<weightLossPerWeekRdo.length; i++)  {
+		if (weightLossPerWeekRdo[i].value == localStorage.weightLossPerWeek){
+			weightLossPerWeekRdo[i].checked = true;
+		}
+	}
+  }
+  if(localStorage.timeUnit != null){
+	//document.getElementById("timeUnit").value = localStorage.timeUnit;
+	//console.log("localStoragetimeUnit:" + localStorage.timeUnit);
+	var timeUnitRdo = document.apr2awFrm.timeUnit;
+	//console.log("timeUnitRdo:" + timeUnitRdo);
+	//console.log("timeUnitRdo.length:" + timeUnitRdo.length);
+	for (var i=0; i<timeUnitRdo.length; i++){
+		//console.log("rdotimeUnit:" + timeUnitRdo[i]);
+		if (timeUnitRdo[i].value == localStorage.timeUnit){
+			timeUnitRdo[i].checked = true;
+		}
+	}
+  }
+});
+
+</script>
+</head>
+<body>
+<h1>apr2aw &ndash; A Pound oR 2 A Week</h1>
+
+<div id="apr2awChart"></div>
+<div id="controls">
+	<form id="apr2awFrm" name="apr2awFrm">
+		<label for="startingDate">Starting Date:</label>
+		<input type="text" name="startingDate" id="startingDate" onchange="drawChart()"/>
+		<br/>
+		<label for="startingWeight">Starting Weight:</label>
+		<input type="text" name="startingWeight" id="startingWeight" value="200" size="3" maxlength="3" />
+		<br/>
+		<label for="goalWeight">Goal Weight:</label>
+		<input type="text" name="goalWeight" id="goalWeight" value="180" size="3" maxlength="3" onchange="drawChart()"/>
+		<br/>
+		<label for="weightLossPerWeek">Desired Weight Loss per Week</label>
+		<input type="radio" name="weightLossPerWeek" id="weightLossPerWeek" value="1" checked onchange="drawChart()"/>1
+		<input type="radio" name="weightLossPerWeek" id="weightLossPerWeek" value="2" onchange="drawChart()"/>2
+		<br/>
+		<label for="timeUnit">Show:</label>
+		<input type="radio" name="timeUnit" id="timeUnit" value="dt" onchange="drawChart()" checked/>Date
+		<input type="radio" name="timeUnit" id="timeUnit" value="w" onchange="drawChart()" />Weeks 
+		<input type="radio" name="timeUnit" id="timeUnit" value="d" onchange="drawChart()"/>Days
+		<br/>
+		<!--input type="button" value="Store Locally" id="storeLocal" onclick="storeLocally()"/ -->
+	</form>
+</div>
+<div id="text">
+	<p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by former NASA physiologist Laurence Morehouse.</a> He trained the Apollo astronauts, so I like his credentials.</p>
+	<p>Slow, gradual behavioral changes leading to weight loss enhance chances for success. While your ego may like rapid weight loss, your body freaks out about it.</p>
+	<p>How to use: enter the starting date, starting weight, and goal weight. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
+	<p>You probably will need a digital scale with decimal point precision.</p>
+	<p>Remember: always check with a medical professional before beginning any weight loss program.</p>
+	<p>Program notes: this page uses the HTML5 feature of Local Storage, so it should work with most modern browsers.</p>
+</div>
+</body>
+ 
