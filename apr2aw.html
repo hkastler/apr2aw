@@ -9,6 +9,9 @@
 google.load('visualization', '1', {packages: ['corechart']});
 google.setOnLoadCallback(drawChart);
 
+//indexedDB stuff
+var db;
+
 function drawChart() {
 
 	//console.log = function() {}
@@ -154,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		}
 	}
   }
+  
   if(localStorage.timeUnit != null){
 	//document.getElementById("timeUnit").value = localStorage.timeUnit;
 	//console.log("localStoragetimeUnit:" + localStorage.timeUnit);
@@ -167,8 +171,83 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		}
 	}
   }
-});
+ 
+//Listen for add clicks
+document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurement, false);
+ 
 
+//make sure indexedDB exists
+if(!indexedDBOk){
+	console.log("indexedDB is not ok");
+}else{
+	console.log("indexedDB is in the house");
+}
+//request seems to be a standard name for this operation
+var request = indexedDB.open("apr2aw",1);
+ 
+//doesn't appear to work in chrome for me?
+request.onupgradeneeded = function(e) {
+	var thisDB = e.target.result;
+
+	if(!thisDB.objectStoreNames.contains("weightMeasurement")) {
+		console.log("creating weightMeasurement store");
+		thisDB.createObjectStore("weightMeasurement",{ autoIncrement: true });
+	}else{
+		console.log("weightMeasurement in the db");
+	}
+}
+	
+
+request.onsuccess = function(e) {
+	console.log("request onsuccess");
+	//var db is global at top of page
+	db = e.target.result;	
+}
+
+request.onerror = function(e) {
+	//Do something for the error
+}
+ 
+}, false);
+
+
+ 
+function indexedDBOk() {
+    return "indexedDB" in window;
+}
+
+function addWeightMeasurement(e) {
+	
+    var weighDate = document.querySelector("#weighDate").value;
+    var theWeight = document.querySelector("#weightMeasurement").value;
+	var createDate = new Date();
+	
+	 //weightMeasurement obj
+    var weightMeasurementItem = {
+        weighDate:weighDate,
+        weight:theWeight,
+		measureUnit: 'lb',
+        created:createDate
+    }
+ 
+    console.log("About to add "+weighDate+":"+theWeight);
+	 
+	//open the db for transaction
+    var transaction = db.transaction(["weightMeasurement"],"readwrite");
+	//the objectStore within the db
+    var store = transaction.objectStore("weightMeasurement");
+	
+	var addMeasurement = store.add(weightMeasurementItem,1);
+ 
+    addMeasurement.onerror = function(e) {
+        console.log("Error",e.target.error.name);
+        //some type of error handler
+    }
+ 
+    addMeasurement.onsuccess = function(e) {
+        console.log("weight measurement added");
+    }
+}
 </script>
 </head>
 <body>
@@ -181,10 +260,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		<input type="text" name="startingDate" id="startingDate" onchange="drawChart()"/>
 		<br/>
 		<label for="startingWeight">Starting Weight:</label>
-		<input type="text" name="startingWeight" id="startingWeight" value="200" size="3" maxlength="3" />
+		<input type="number" name="startingWeight" id="startingWeight" value="200" size="3" maxlength="3" />
 		<br/>
 		<label for="goalWeight">Goal Weight:</label>
-		<input type="text" name="goalWeight" id="goalWeight" value="180" size="3" maxlength="3" onchange="drawChart()"/>
+		<input type="number" name="goalWeight" id="goalWeight" value="180" size="3" maxlength="3" onchange="drawChart()"/>
 		<br/>
 		<label for="weightLossPerWeek">Desired Weight Loss per Week</label>
 		<input type="radio" name="weightLossPerWeek" id="weightLossPerWeek" value="1" checked onchange="drawChart()"/>1
@@ -197,6 +276,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		<br/>
 		<!--input type="button" value="Store Locally" id="storeLocal" onclick="storeLocally()"/ -->
 	</form>
+	<hr/>
+	Daily Record Weight for chart
+	<form id="weightMeasurementFrm" name="weightMeasurementFrm">
+		<label for="startingDate">Date:</label>
+		<input type="date" name="weighDate" id="weighDate" />
+		<br/>
+		<label for="weight">Weight:</label>
+		<input type="number" name="weightMeasurement" id="weightMeasurement"/>
+		<br/>
+		<input type="button" value="Add Weight Measurement" id="addWeightMeasurement" >
+	</form>
 </div>
 <div id="text">
 	<p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by former NASA physiologist Laurence Morehouse.</a> He trained the Apollo astronauts, so I like his credentials.</p>
@@ -204,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	<p>How to use: enter the starting date, starting weight, and goal weight. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
 	<p>You probably will need a digital scale with decimal point precision.</p>
 	<p>Remember: always check with a medical professional before beginning any weight loss program.</p>
-	<p>Program notes: this page uses the HTML5 feature of Local Storage, so it should work with most modern browsers.</p>
+	<p>Program notes: this page uses the HTML5 features of Local Storage and IndexedDB; it should work with most modern browsers.</p>
 </div>
 </body>
  
