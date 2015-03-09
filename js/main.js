@@ -165,6 +165,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
  
 //Listen for add clicks
 document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurement, false);
+
+//default value for weightMeasurement date
+var today =  new Date();
+document.getElementById("weighDate").valueAsDate = today;
+//for non-chrome browsers
+if(document.getElementById("weighDate").value == ""){
+	document.getElementById("weighDate").value = formatDate(today);
+}
  
 //make sure indexedDB exists
 if(!indexedDBOk){
@@ -191,16 +199,28 @@ request.onsuccess = function(e) {
 	console.log("request onsuccess");
 	
 	db = e.target.result;	
-	get_records(db);
+	//get_records(db);
 }
 
 request.onerror = function(e) {
 	//Do something for the error
 }
-
-
  
 }, false);//end of DOMContentLoaded
+
+function formatDate(date){
+	
+	var day = date.getDate();
+	var month = date.getMonth() + 1;
+	var year = date.getFullYear();
+
+	if (month < 10) month = "0" + month;
+	if (day < 10) day = "0" + day;
+
+	var theDate = month + "/" + day + "/" + year;       
+	return theDate
+	
+}
 
  
 function indexedDBOk() {
@@ -237,7 +257,7 @@ function addWeightMeasurement(e) {
  
     addMeasurement.onsuccess = function(e) {
         console.log("weight measurement added");
-		get_records(db);
+		//get_records(db);
     }
 }
 
