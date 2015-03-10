@@ -42,7 +42,7 @@ request.onerror = function(e) {
 	console.log("error opening DB:" + dbName);
 }
 
-function readFromIndex(key) {
+function readFromIndex(key,callback) {
 	var transaction = db.transaction(["weightMeasurement"]);
 	var objectStore = transaction.objectStore("weightMeasurement");
 	var index = objectStore.index("weighDateIndex");
@@ -55,33 +55,16 @@ function readFromIndex(key) {
 	  //getWeightFromRecord(request.result);
 	  
 	  // Do something with the request.result!
-	  if(request.result) {
+	  if(request.result && request.result != null) {
 			console.log("weight: " + request.result.weight + ", weighDate: " + request.result.weighDate);
-						
+			callback(request);			
 	  } else {
 			console.log("key:" + key + " not found"); 
-			
+			callback(null);
 	  }
 	};
 		
 }
-
-function getWeightFromRecord(record){
-
-	console.log("getWeightFromRecord");
-	// Do something with the request.result!
-	  if(record) {
-			console.log("record here");
-			console.log("weight: " + record.weight + ", weighDate: " + record.weighDate);
-						
-	  } else {
-			console.log("no record here"); 
-			
-	  }
-}
-
-
-
 
 function drawChart(db) {
 
@@ -94,11 +77,12 @@ function drawChart(db) {
 	var timeUnit = document.querySelector('input[name="timeUnit"]:checked');
 	var startingDate = document.getElementById("startingDate").value;
 	var dt = new Date(startingDate.toString());
+	var today = new Date();
 	
 	if(dt == 'Invalid Date'){	
 		//console.log("invalid date entered");
 		dt = new Date();
-		document.getElementById("startingDate").value =  formatDate(dt);
+		document.getElementById("startingDate").value =  formatDate(dt,"/");
 		//console.log("fallback date used: " + dt);		
 	}
 	
@@ -120,6 +104,7 @@ function drawChart(db) {
 	var ticks = [];
 	var hAxisTitle = "";
 	var recordedWeight = null;
+	
 	
 	if(timeUnit.value == "w"){
 		hAxisTitle = "Week";
@@ -153,20 +138,42 @@ function drawChart(db) {
 			//console.log(i + "wt: " + weight);
 			var dateToPlot = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0);
 			var dateForIndex = formatDateForIndex(dateToPlot);
-			console.log("dateForIndex:" + dateForIndex);
-			var weightResult = readFromIndex(dateForIndex);
-			if(weightResult != null){
-				recordedWeight = weightResult.weight;
-			}else{
+			
+			if(today <= dateToPlot){
+			    //no need to get recordedWeight for future
 				recordedWeight = null;
+				var added = data.addRows([
+					[dateToPlot, targetWeight, recordedWeight]
+				]);
+				console.log("added row for future dates:" + added);
+			}else{
+				if(i=0){
+					recordedWeight = startingWeight;
+					var added = data.addRows([
+						[dateToPlot, targetWeight, recordedWeight]
+					]);
+					console.log("added row in loop0:" + added);
+				}else{
+					
+					recordedWeight = readFromIndex(dateForIndex,function(e){
+																			if(e != null){
+																				recordedWeight = parseFloat(e.result.weight);
+																				console.log("recordedWeight:" + recordedWeight);
+																				console.log("dateToPlot:" + dateToPlot);
+																				console.log("targetWeight:" + targetWeight);
+																				var added = data.addRows([
+																					[dateToPlot, targetWeight, recordedWeight]
+																				]);
+																				console.log("added row in callback:" + added);
+																				chart.draw(data, options);
+																			}
+																			});
+					
+				}
 			}
-			console.log("recordedWeight: " + recordedWeight);
-			data.addRows([
-				[dateToPlot, targetWeight, recordedWeight]
-			]);
-		
+			
 			targetWeight = (targetWeight - (weightLossPerWeek/7));
-			ticks.push(new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0));
+			ticks.push(dateToPlot);
 			dt.setTime(dt.getTime() + 86400000 );
 			//console.log("next date: " + dt);
 		}
@@ -194,16 +201,12 @@ function drawChart(db) {
 }
 
 function storeLocally(){
-	if(typeof(Storage) !== "undefined") {
-		localStorage.setItem("startingDate", document.getElementById("startingDate").value);
-		localStorage.setItem("startingWeight", document.getElementById("startingWeight").value);
-		localStorage.setItem("goalWeight",document.getElementById("goalWeight").value);
-		localStorage.setItem("weightLossPerWeek", document.querySelector('input[name="weightLossPerWeek"]:checked').value);
-		localStorage.setItem("timeUnit", document.querySelector('input[name="timeUnit"]:checked').value);
-		//console.log("data stored locally");
-} else {
-    alert("Apologies, your browser does not support local storage of data.");
-}
+	localStorage.setItem("startingDate", document.getElementById("startingDate").value);
+	localStorage.setItem("startingWeight", document.getElementById("startingWeight").value);
+	localStorage.setItem("goalWeight",document.getElementById("goalWeight").value);
+	localStorage.setItem("weightLossPerWeek", document.querySelector('input[name="weightLossPerWeek"]:checked').value);
+	localStorage.setItem("timeUnit", document.querySelector('input[name="timeUnit"]:checked').value);
+	//console.log("data stored locally");
 }
 
 document.addEventListener("DOMContentLoaded", function(event) { 
@@ -248,14 +251,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	document.getElementById("weighDate").valueAsDate = today;
 	//for non-chrome browsers
 	if(document.getElementById("weighDate").value == ""){
-		document.getElementById("weighDate").value = formatDate(today);
+		document.getElementById("weighDate").value = formatDate(today,"/");
 	}
 	
  
 }, false);//end of DOMContentLoaded
 
 
-function formatDate(date){
+function formatDate(date,delimiter){
 	
 	var day = date.getDate();
 	var month = date.getMonth() + 1;
@@ -264,8 +267,8 @@ function formatDate(date){
 	if (month < 10) month = "0" + month;
 	if (day < 10) day = "0" + day;
 
-	var theDate = month + "/" + day + "/" + year;       
-	return theDate
+	var theDate = month + delimiter + day + delimiter + year;       
+	return theDate;
 	
 }
 
@@ -313,8 +316,7 @@ function addWeightMeasurement(e) {
  
     addMeasurement.onsuccess = function(e) {
         console.log("weight measurement added");
-		//get_records(db);
-    }
+	}
 }
 
 //using jQuery here
