@@ -1,36 +1,104 @@
 google.load('visualization', '1', {packages: ['corechart']});
-google.setOnLoadCallback(drawChart);
+//google.setOnLoadCallback(drawChart);
 
 //indexedDB
-var db;
+//prefixes of implementation that we want to test
+window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+ 
+//prefixes of window.IDB objects
+window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
+ 
+if (!window.indexedDB) {
+    window.alert("Your browser doesn't support a stable version of IndexedDB.")
+}
 const dbName = "apr2aw";
+const dbVersion = 1;
 
-function drawChart() {
+//request seems to be a standard name for this operation
+var request = window.indexedDB.open(dbName);	
+
+request.onsuccess = function(e) {
+	console.log("openDB onsuccess");		
+	db = e.target.result;	
+	drawChart(db);
+}
+
+request.onupgradeneeded = function(e) {
+	var db = e.target.result;
+
+	if(!db.objectStoreNames.contains("weightMeasurement")) {
+		console.log("creating weightMeasurement store");
+		var objectStore = db.createObjectStore("weightMeasurement",{autoIncrement:true});
+		console.log("creating weighDateIndex");
+		objectStore.createIndex("weighDateIndex", "weighDate", {unique:true});
+		objectStore.onsuccess = function(e){
+			console.log("weighDateIndex created");
+		}
+	}
+}
+
+request.onerror = function(e) {
+	console.log("error opening DB:" + dbName);
+}
+
+function readFromIndex(key) {
+	var transaction = db.transaction(["weightMeasurement"]);
+	var objectStore = transaction.objectStore("weightMeasurement");
+	var index = objectStore.index("weighDateIndex");
+	var request = index.get(key);
+	var weightRecord = null;
+	request.onerror = function(event) {
+	  alert("indexeddb read error!");
+	};
+	request.onsuccess = function(event) {
+	  //getWeightFromRecord(request.result);
+	  
+	  // Do something with the request.result!
+	  if(request.result) {
+			console.log("weight: " + request.result.weight + ", weighDate: " + request.result.weighDate);
+						
+	  } else {
+			console.log("key:" + key + " not found"); 
+			
+	  }
+	};
+		
+}
+
+function getWeightFromRecord(record){
+
+	console.log("getWeightFromRecord");
+	// Do something with the request.result!
+	  if(record) {
+			console.log("record here");
+			console.log("weight: " + record.weight + ", weighDate: " + record.weighDate);
+						
+	  } else {
+			console.log("no record here"); 
+			
+	  }
+}
+
+
+
+
+function drawChart(db) {
 
 	//console.log = function() {}
 	var startingWeight = parseInt(document.getElementById("startingWeight").value);
-	//console.log("startingWeight: " +startingWeight);
-
 	var goalWeight = parseInt(document.getElementById("goalWeight").value);
-	//console.log("goalWeight: " +goalWeight);
-	
 	var weightLossPerWeek = parseInt(document.querySelector('input[name="weightLossPerWeek"]:checked').value);
-	//console.log("weightLossPerWeek: " +weightLossPerWeek);
-	
 	var numberOfWeeks = (startingWeight-goalWeight)/ weightLossPerWeek
-	var numberOfDays = numberOfWeeks * 7
-	
+	var numberOfDays = numberOfWeeks * 7	
 	var timeUnit = document.querySelector('input[name="timeUnit"]:checked');
-	//console.log("timeUnit: " + timeUnit.value);
-	
 	var startingDate = document.getElementById("startingDate").value;
-	//console.log("Starting date: " + startingDate);
 	var dt = new Date(startingDate.toString());
-	//console.log("starting dt:" + dt);
+	
 	if(dt == 'Invalid Date'){	
 		//console.log("invalid date entered");
 		dt = new Date();
-		document.getElementById("startingDate").value =  (dt.getMonth() +1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+		document.getElementById("startingDate").value =  formatDate(dt);
 		//console.log("fallback date used: " + dt);		
 	}
 	
@@ -38,24 +106,28 @@ function drawChart() {
 	
 	if(timeUnit.value != "dt"){
 		data.addColumn('number', 'X');
+		
 	}else{
 		data.addColumn('date','Date');
+			
 	}
 	data.addColumn('number', 'Target Weight');
-
-	var weight = startingWeight;
+	data.addColumn('number', 'Recorded Weight');
+	
+	var targetWeight = startingWeight;
 	
 	var options = {};
 	var ticks = [];
 	var hAxisTitle = "";
+	var recordedWeight = null;
 	
 	if(timeUnit.value == "w"){
 		hAxisTitle = "Week";
 		for (i=0; i <=numberOfWeeks; i++){
 				data.addRows([
-					[i, weight]
+					[i, targetWeight, recordedWeight]
 				]);
-			weight = (weight - (weightLossPerWeek));
+			targetWeight = (targetWeight - (weightLossPerWeek));
 			ticks.push(i);
 		  }
 	
@@ -64,37 +136,42 @@ function drawChart() {
 		hAxisTitle = "Day";
 		for (i=0; i <=numberOfDays; i++){
 				data.addRows([
-					[i, weight]
+					[i, targetWeight, recordedWeight]
 				]);
-			weight = (weight - (weightLossPerWeek/7));
+			targetWeight = (targetWeight - (weightLossPerWeek/7));
 			ticks.push(i)
 		}
 	//show date
 	}else {
 		hAxisTitle = "Date";
-		console.log("date: " + dt);
+		
+		if(db)console.log("db here in drawchart");
+		
 		
 		for (i=0; i <=numberOfDays; i++){
-				//console.log(i +" dt: " + dt);
-				//console.log(i + "wt: " + weight);
-				data.addRows([
-					[new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0), weight]
-				]);
+			//console.log(i +" dt: " + dt);
+			//console.log(i + "wt: " + weight);
+			var dateToPlot = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0);
+			var dateForIndex = formatDateForIndex(dateToPlot);
+			console.log("dateForIndex:" + dateForIndex);
+			var weightResult = readFromIndex(dateForIndex);
+			if(weightResult != null){
+				recordedWeight = weightResult.weight;
+			}else{
+				recordedWeight = null;
+			}
+			console.log("recordedWeight: " + recordedWeight);
+			data.addRows([
+				[dateToPlot, targetWeight, recordedWeight]
+			]);
 		
-			weight = (weight - (weightLossPerWeek/7));
+			targetWeight = (targetWeight - (weightLossPerWeek/7));
 			ticks.push(new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0));
 			dt.setTime(dt.getTime() + 86400000 );
 			//console.log("next date: " + dt);
-			
 		}
 	}
 	
-	/*
-	var oWidth = window.screen.availWidth;
-	oWidth = oWidth - (.2 * oWidth);
-	var oHeight = window.screen.availHeight;
-	oHeight = oHeight - (.2 * oHeight);
-	*/
 	options = {
 		allowRedraw: true,
 		hAxis: {
@@ -163,50 +240,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	}
   }
  
-//Listen for add clicks
-document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurement, false);
+	//Listen for add clicks
+	document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurement, false);
 
-//default value for weightMeasurement date
-var today =  new Date();
-document.getElementById("weighDate").valueAsDate = today;
-//for non-chrome browsers
-if(document.getElementById("weighDate").value == ""){
-	document.getElementById("weighDate").value = formatDate(today);
-}
- 
-//make sure indexedDB exists
-if(!indexedDBOk){
-	console.log("indexedDB is not ok");
-}else{
-	console.log("indexedDB is in the house");
-}
-//request seems to be a standard name for this operation
-var request = indexedDB.open(dbName,1);
- 
-request.onupgradeneeded = function(e) {
-	var thisDB = e.target.result;
-
-	if(!thisDB.objectStoreNames.contains("weightMeasurement")) {
-		console.log("creating weightMeasurement store");
-		thisDB.createObjectStore("weightMeasurement",{ autoIncrement: true });
-	}else{
-		console.log("weightMeasurement in the db");
+	//default value for weightMeasurement date
+	var today =  new Date();
+	document.getElementById("weighDate").valueAsDate = today;
+	//for non-chrome browsers
+	if(document.getElementById("weighDate").value == ""){
+		document.getElementById("weighDate").value = formatDate(today);
 	}
-}
 	
-
-request.onsuccess = function(e) {
-	console.log("request onsuccess");
-	
-	db = e.target.result;	
-	//get_records(db);
-}
-
-request.onerror = function(e) {
-	//Do something for the error
-}
  
 }, false);//end of DOMContentLoaded
+
 
 function formatDate(date){
 	
@@ -222,9 +269,18 @@ function formatDate(date){
 	
 }
 
- 
-function indexedDBOk() {
-    return "indexedDB" in window;
+function formatDateForIndex(date){
+	
+	var day = date.getDate();
+	var month = date.getMonth() + 1;
+	var year = date.getFullYear();
+
+	if (month < 10) month = "0" + month;
+	if (day < 10) day = "0" + day;
+
+	var theDate = year + "-" + month + "-" + day;       
+	return theDate;
+	
 }
 
 function addWeightMeasurement(e) {
@@ -248,7 +304,7 @@ function addWeightMeasurement(e) {
 	//the objectStore within the db
     var store = transaction.objectStore("weightMeasurement");
 	
-	var addMeasurement = store.add(weightMeasurementItem,{id:autoIncrement});
+	var addMeasurement = store.add(weightMeasurementItem);
  
     addMeasurement.onerror = function(e) {
         console.log("Error",e.target.error.name);
@@ -259,39 +315,6 @@ function addWeightMeasurement(e) {
         console.log("weight measurement added");
 		//get_records(db);
     }
-}
-
-//http://www.html5labs.com/IndexedDBTest/CodeSnippets/samples.html
-//http://www.ibm.com/developerworks/library/wa-indexeddb/
-function get_records(db) {
-	var objStoreName = "weightMeasurement";
-		try{
-				
-				if (db){
-					console.log("db getting records");
-					var objStore = db.transaction("weightMeasurement").objectStore("weightMeasurement");
-					
-					if (objStore){
-						var cursor = objStore.openCursor();
-						cursor.onsuccess = function(evt) {
-						var cursor = evt.target.result;
-							 if (cursor) {
-								var weightMeasurement = cursor.value;
-								var jsonStr = JSON.stringify(weightMeasurement);
-								console.log(jsonStr);
-								cursor.continue();
-							 }
-						};
-						
-					}else {
-						console.log("Failed to open objectStore.");
-					}
-					
-					db.close();
-				}
-			}catch (e) {
-				console.log("Error: " + e.message);
-			}
 }
 
 //using jQuery here
