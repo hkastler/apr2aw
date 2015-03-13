@@ -7,10 +7,10 @@ window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || 
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
  
 if (!window.indexedDB) {
-    window.alert("Your browser doesn't support a stable version of IndexedDB.")
+    window.alert("Your browser doesn't support a stable version of IndexedDB.");
 }
-const dbName = "apr2aw";
-const dbVersion = 1;
+var dbName = "apr2aw";
+var dbVersion = 1;
 
 //request seems to be a standard name for this operation
 var request = window.indexedDB.open(dbName);	
