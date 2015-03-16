@@ -31,7 +31,8 @@ function drawChart() {
 		//console.log("fallback date used: " + dt);		
 	}
 	
-	var today = new Date();
+	var today = new Date().setHours(0,0,0,0);
+	today = new Date(today);
 	
 	var dayOfProgram = dateDiffInDays(dt,today);
 	console.log("currentDayOfProgram: "+ dayOfProgram);
@@ -103,12 +104,7 @@ function drawChart() {
 			recordedWeight = parseFloat(localStorage.getItem("weightMeasurement" + dateForLS));
 			//console.log("recordedWeight:" + recordedWeight);
 			var dateToPlotComp = new Date(dateToPlot);
-			var today = new Date();
-			//console.log("dateToPlotComp: " + dateToPlotComp);
-			today = today.setHours(0,0,0,0)
-			today = new Date(today);
-			//console.log("today:" + today);
-			
+					
 			if(dateToPlotComp.getTime() == today.getTime()){
 				//console.log("today found");
 				annotation1 = "Today";
@@ -123,8 +119,6 @@ function drawChart() {
 				annotationText2 = "";
 			}
 			
-			
-
 		}
 		
 		var added = data.addRows([
@@ -166,7 +160,8 @@ function drawChart() {
 	
 	var chart = new google.visualization.LineChart(document.getElementById('apr2awChart'));
 	
-	data.sort([{column: 0}]);	
+	//don't need this yet
+	//data.sort([{column: 0}]);	
 	
 	if(dayRangeStartDateObj.value == ""){
 		dayRangeStartDateObj.value = document.getElementById("startingDate").value;
@@ -175,7 +170,12 @@ function drawChart() {
 		var startDate = new Date(dayRangeStartDateObj.value);
 		var endTime = startDate.setTime(startDate.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
 		var endDate = new Date(endTime);
-		dayRangeEndDateObj.value = formatDateForInput(endDate);
+		var isChrome = window.chrome;
+		if(isChrome){
+			dayRangeEndDateObj.value = formatDateForInput(endDate);
+		}else{
+			dayRangeEndDateObj.value = formatDate(endDate,"/");
+		}
 	};
 	document.getElementById('today').innerHTML = today.toString().substring(0,15);
 	//document.getElementById('weeksInfo').innerHTML = numberOfWeeks;
