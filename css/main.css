@@ -1,8 +1,9 @@
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
-/* many thanks to http://codepen.io/shoogledesigns/pen/BfLkA * for the chart resizing code/ 
-   * {
+//* many thanks to http://codepen.io/shoogledesigns/pen/BfLkA * for the chart resizing code/ 
+*/
+* {
   @include box-sizing(border-box);
 }
 
@@ -42,6 +43,9 @@ $pad: 20px;
 .col-1-8 {
   width: 12.5%;
 }
+.col-1 {
+	width: 100%;
+}
 
 /* Opt-in outside padding */
 .grid-pad {
@@ -54,8 +58,23 @@ $pad: 20px;
   width: 100%; 
   height: 600px;
 }
+.apr2aw-frm{
+	float: left;
+	width: 100%;
+}
 
+.wtMsrmt-frm {
+	width: 100%;
+}
 
+.frmCtrl label {display: inline-block; width: 140px; text-align: right; }
+.frmCtrl.rdo label{width:250px}
+
+#addWeightMeasurement{ align:right }
+
+.buttonPiece { text-align: center }
+
+.chartRange{ text-align: center}
 
 
 
