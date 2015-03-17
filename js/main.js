@@ -57,12 +57,10 @@ function drawChart() {
 		dayRangeEnd = numberOfDays;
 	}
 	
-	
-	
 	var data = new google.visualization.DataTable();
 	
 	data.addColumn('date','Date');
-	data.addColumn('number', 'Target Weight');
+	data.addColumn('number', 'Target Weight @' + weightLossPerWeek + "lb per week");
 	data.addColumn({type: 'string', role:'annotation'});
 	data.addColumn({type: 'string', role:'annotationText'});
 	data.addColumn('number', 'Recorded Weight');
@@ -113,10 +111,10 @@ function drawChart() {
 				annotationText2 = "Recorded Weight: " + recordedWeight;
 			}else{
 				//console.log("today:" + today + " dateToPlot: " + dateToPlot);
-				annotation1 = "";
-				annotationText = "";
+				annotation1 = null;
+				annotationText = null;
 				annotation2 = null;
-				annotationText2 = "";
+				annotationText2 = null;
 			}
 			
 		}
@@ -163,9 +161,6 @@ function drawChart() {
 	//don't need this yet
 	//data.sort([{column: 0}]);	
 	
-	if(dayRangeStartDateObj.value == ""){
-		dayRangeStartDateObj.value = document.getElementById("startingDate").value;
-	}
 	if(dayRangeEndDateObj.value == ""){
 		var startDate = new Date(dayRangeStartDateObj.value);
 		var endTime = startDate.setTime(startDate.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
@@ -183,6 +178,7 @@ function drawChart() {
 	document.getElementById('daysInfo').innerHTML = numberOfDays;
 	chart.draw(data, options);
 	storeLocally();
+	
 }
 
 function dateDiffInDays(date1,date2){
@@ -264,6 +260,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurementLS, false);
 	document.getElementById('resetRange').addEventListener('click', resetRange, true);
 	
+	document.getElementById('startingWeight').addEventListener('input', drawChart, true);
+	document.getElementById('goalWeight').addEventListener('input', drawChart, true);
+	
 	document.getElementById('dayRangeStartDate').addEventListener('input', function(){getRangeChart();}, true);
 	document.getElementById('dayRangeEndDate').addEventListener('input', function(){getRangeChart();}, true);
 		
@@ -336,7 +335,7 @@ function addWeightMeasurementLS() {
     var theWeight = document.querySelector("#weightMeasurement").value;
 	
 	weightMeasurementStorage(weightDateFmtLS,theWeight);
-	
+	drawChart();
 	return;    
 }
 

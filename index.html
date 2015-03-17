@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
+        <title>A Pound or 2 a Week Weight Loss</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -33,7 +33,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
-			<a class="navbar-brand" href="/">A Pound oR 2 A Week</a>
+			<a class="navbar-brand" href="/">A Pound o' 2 a Week Weight Loss</a>
         </div>		
       </div>
     </nav>
@@ -44,14 +44,7 @@
     </div>
 
     <div class="container">
-     <div class="row">
-		<div class="chartRange">
-			<!-- Weeks:<span id="weeksInfo"></span><br/> -->
-			Today, <span id="today"></span> is day <span id="dayOfProgram"></span> of <span id="daysInfo"></span> in the program
-			<br/>
-			View Chart from <input id="dayRangeStartDate" type="date" value=""/> to <input id="dayRangeEndDate"  type="date" value=""> <a id="resetRange">Reset Range</a>
-		</div>
-	 </div>
+     
 	  <div class="row">
 		<div class="col-xs-6">
 			<h3>Starting Information</h3>
@@ -66,7 +59,7 @@
 				</div>
 				<div class="frmCtrl">
 					<label for="goalWeight">Goal Weight:</label>
-					<input type="number" name="goalWeight" id="goalWeight" value="180" size="3" maxlength="3" onchange="drawChart()"/>
+					<input type="number" name="goalWeight" id="goalWeight" value="180" size="3" maxlength="3"/>
 				</div>
 				<div class="frmCtrl rdo">
 					<label for="weightLossPerWeek">Desired Weight Loss per Week:</label>
@@ -102,12 +95,23 @@
 			</div>
 		</div>
 	  </div>
+	  <div class="row">
+		<div class="col-xs-6 chartRange">
+			<h3>Chart Controls</h3>
+			<!-- Weeks:<span id="weeksInfo"></span><br/> -->
+			Today, <span id="today"></span> is day <span id="dayOfProgram"></span> of <span id="daysInfo"></span> in the program
+			<br/>
+			<form id="chartRangeFrm" name="chartRangeFrm">
+			View Chart from <input id="dayRangeStartDate" type="date" value=""/> to <input id="dayRangeEndDate"  type="date" value=""> <input type="button" id="resetRange"value="Reset Range"/>
+			</form>
+		</div>
+	 </div>
 	  
       <div class="row">      
         <p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by former NASA physiologist Laurence Morehouse.</a> He trained the Apollo astronauts, so I like his credentials.</p>
-		<p>Gradual behavioral changes enhance chances for success. While your ego may like rapid weight loss, your body does not.</p>
+		<p>Gradual behavioral changes enhance chances for success.</p>
 		<p>How to use: enter the starting date, starting weight, and goal weight. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
-		<p>You probably will need a digital scale with decimal point precision.</p>
+		<p>You will need a scale with decimal point precision.</p>
 		<p>Remember: always check with a medical professional before beginning any weight loss program.</p>
 		<p>All data is stored locally, so you'll need to use the same browser each time.</p>
        </div>   
