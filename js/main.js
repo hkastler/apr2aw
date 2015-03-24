@@ -57,10 +57,19 @@ function drawChart() {
 		dayRangeEnd = numberOfDays;
 	}
 	
+	var weightMeasurements = new Object();
+	
+	if(localStorage.getItem("weightMeasurements") != null){
+		//console.log("wm:" + localStorage.getItem("weightMeasurements"));
+		weightMeasurements = JSON.parse(localStorage.getItem("weightMeasurements"));
+		//console.log(weightMeasurements);
+	}
+	
 	var data = new google.visualization.DataTable();
 	
 	data.addColumn('date','Date');
 	data.addColumn('number', 'Target Weight @' + weightLossPerWeek + "lb per week");
+	data.addColumn({'type': 'string', 'role': 'style'});
 	data.addColumn({type: 'string', role:'annotation'});
 	data.addColumn({type: 'string', role:'annotationText'});
 	data.addColumn('number', 'Recorded Weight');
@@ -70,6 +79,7 @@ function drawChart() {
 	var options = {};
 	var ticks = [];
 	var recordedWeight = null;
+	var pointStyle = null;
 	var annotation1 = "";
 	var annotationText1 = "";
 	var annotation2 = "";
@@ -85,10 +95,11 @@ function drawChart() {
 	for (i=dayRangeStart; i <= dayRangeEnd; i++){
 			
 		var dateToPlot = new Date(chartDate.getFullYear(), chartDate.getMonth(), chartDate.getDate(), 0, 0, 0, 0);
-		var dateForLS = formatDateForLS(dateToPlot);
+		var dateForKey = formatDateForKey(dateToPlot);
 				
 		if(dateToPlot > today){
 			//no need to get recordedWeight for future
+			pointStyle = null;
 			recordedWeight = null;
 			annotation1 = null;
 			annotationText1 = null;
@@ -99,37 +110,54 @@ function drawChart() {
 		}else{
 												
 			//console.log("dateToPlot:" + dateToPlot);
-			recordedWeight = parseFloat(localStorage.getItem("weightMeasurement" + dateForLS));
-			//console.log("recordedWeight:" + recordedWeight);
+			//recordedWeight = parseFloat(localStorage.getItem("weightMeasurement" + dateForLS));
+			recordedWeight = parseFloat(weightMeasurements[dateForKey]);
+			if(isNaN(recordedWeight)){
+				recordedWeight = null;
+			}
+			console.log("recordedWeight:" + recordedWeight);
 			var dateToPlotComp = new Date(dateToPlot);
 					
 			if(dateToPlotComp.getTime() == today.getTime()){
 				//console.log("today found");
+				pointStyle =  "point { size: 12; shape-type: star; }";
 				annotation1 = "Today";
 				annotationText1 = "Target Weight: " + targetWeight.toFixed(2);
 				annotation2 = "Today";
 				annotationText2 = "Recorded Weight: " + recordedWeight;
 			}else{
 				//console.log("today:" + today + " dateToPlot: " + dateToPlot);
+				pointStyle = null;
 				annotation1 = null;
 				annotationText = null;
 				annotation2 = null;
 				annotationText2 = null;
 			}
-			
+			//weightMeasurements[dateForKey] = recordedWeight;
 		}
 		
 		var added = data.addRows([
-				[dateToPlot, targetWeight, annotation1, annotationText1, recordedWeight, annotation2, annotationText2]
+				[dateToPlot, targetWeight, pointStyle, annotation1, annotationText1, recordedWeight, annotation2, annotationText2]
 		]);
+		
 		targetWeight = (targetWeight - (weightLossPerWeek/7));
 		ticks.push(dateToPlot);
 		chartDate.setTime(chartDate.getTime() + DAY_MILLISECONDS );
 		//console.log("next date: " + dt);
 	}
 	
+	function selectHandler() {
+		var selectedItem = chart.getSelection()[0];
+		console.log(selectedItem);
+		if (selectedItem) {
+			console.log(data);
+		  var value = data.getValue(selectedItem.row, 7);
+			console.log('The user selected ' + value);
+		}
+	  }
 	
 	options = {
+		interpolateNulls: true,
 		allowRedraw: true,
 		hAxis: {
 		  format: 'M/dd/yy',
@@ -157,7 +185,8 @@ function drawChart() {
 	
 	
 	var chart = new google.visualization.LineChart(document.getElementById('apr2awChart'));
-	
+	//selectHandler impl sometime
+	//google.visualization.events.addListener(chart, 'select', selectHandler);
 	//don't need this yet
 	//data.sort([{column: 0}]);	
 	
@@ -176,9 +205,13 @@ function drawChart() {
 	//document.getElementById('weeksInfo').innerHTML = numberOfWeeks;
 	document.getElementById('dayOfProgram').innerHTML = dayOfProgram;
 	document.getElementById('daysInfo').innerHTML = numberOfDays;
+	document.getElementById('weightMeasurementsInfo').innerHTML = weightMeasurementHtml(weightMeasurements);
 	chart.draw(data, options);
 	storeLocally();
 	
+	//var strWeightM = JSON.stringify(weightMeasurements);
+	//localStorage.setItem("weightMeasurements",strWeightM);
+	//console.log("weightMeasurements: " + strWeightM);
 }
 
 function dateDiffInDays(date1,date2){
@@ -198,15 +231,22 @@ function getRangeChart(){
 	var isEndDate =   !( endDate == 'Invalid Date');
 	var isStartBeforeEnd = startDate < endDate;
 	
-	//console.log("isStartDate: " + isStartDate);
-	//console.log("isEndDate: " + isEndDate);
-	//console.log("isStartBeforeEnd:" + isStartBeforeEnd)
-	
 	if((isStartDate && isEndDate) && (isStartBeforeEnd)){
 		drawChart();
 	}
 	
 }
+
+function weightMeasurementHtml(weightMeasurements){
+	var html= "<table><tr><th>Date</th><th>Weight</th></tr>";
+	for (var wm in weightMeasurements) {
+		html += "<tr><td>"+ wm.substring(4,6) + "/" + wm.substring(6) + "/" + wm.substring(0,4) +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
+	}
+	html += "</table>"
+	
+	return html;
+}
+
 
 function storeLocally(){
 	localStorage.setItem("startingDate", document.getElementById("startingDate").value);
@@ -219,10 +259,7 @@ function storeLocally(){
 	//console.log("data stored locally");
 }
 
-function weightMeasurementStorage(dateStr,weight){
-	var itemKey = "weightMeasurement"+dateStr;
-	localStorage.setItem(itemKey,weight);
-}
+
 
 document.addEventListener("DOMContentLoaded", function(event) { 
   if(localStorage.startingDate != null){
@@ -292,7 +329,7 @@ function formatDate(date,delimiter){
 	
 }
 
-function formatDateForLS(date){
+function formatDateForKey(date){
 	
 	var day = date.getDate();
 	var month = date.getMonth() + 1;
@@ -328,15 +365,43 @@ function resetRange(){
 }
 
 function addWeightMeasurementLS() {	
+
     var weighDate = document.querySelector("#weighDate").value;
-	console.log("weighDateLS:" + weighDate);
-	weighDate = weighDate.replace(/-/g,"");
-	var weightDateFmtLS = weighDate;
+	
+	weighDate += " 00:00:00"
+	//console.log("weighDateLS:" + weighDate);
+	//weighDate = weighDate.replace(/-/g,"");
+	//constructing the date like this works across browsers
+	//vs accepting the date string from any browser
+	weighDate = new Date(weighDate);
+	
+	var weightDateFmtLS = formatDateForKey(weighDate);
+	//console.log("weightDateFmtLS:" + weightDateFmtLS);
     var theWeight = document.querySelector("#weightMeasurement").value;
 	
 	weightMeasurementStorage(weightDateFmtLS,theWeight);
 	drawChart();
 	return;    
+}
+
+function weightMeasurementStorage(dateStr,weight){
+	//var itemKey = "weightMeasurement"+dateStr;
+	//localStorage.setItem(itemKey,weight);
+	
+	var wmsKey = "weightMeasurements";
+	
+	if(localStorage.getItem(wmsKey) == null){
+		var wm = new Object();
+		wm['date'] = 'weight';
+		var nwm = JSON.stringify(wm);
+		localStorage.setItem(wmsKey, nwm);
+	}
+	
+	var weightMeasurements = JSON.parse(localStorage.getItem(wmsKey));
+	weightMeasurements[dateStr] = weight;
+	wms = JSON.stringify(weightMeasurements);
+	localStorage.setItem(wmsKey,wms);
+	
 }
 
 

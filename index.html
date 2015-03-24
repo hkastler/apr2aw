@@ -33,7 +33,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
-			<a class="navbar-brand" href="/">A Pound o' 2 a Week Weight Loss</a>
+			<a class="navbar-brand" href="/">A Pound or 2 a Week Weight Loss</a>
         </div>		
       </div>
     </nav>
@@ -102,8 +102,15 @@
 			Today, <span id="today"></span> is day <span id="dayOfProgram"></span> of <span id="daysInfo"></span> in the program
 			<br/>
 			<form id="chartRangeFrm" name="chartRangeFrm">
-			View Chart from <input id="dayRangeStartDate" type="date" value=""/> to <input id="dayRangeEndDate"  type="date" value=""> <input type="button" id="resetRange"value="Reset Range"/>
+			
+			<label for="dayRangeStartDate">View Chart from:</label><input id="dayRangeStartDate" type="date" value=""/><label for="dayRangeEndDate"> to:</label><input id="dayRangeEndDate"  type="date" value=""> <input type="button" id="resetRange" value="Reset Range"/>
+			
 			</form>
+		</div>
+		<div class="col-xs-6">
+			<h3>Weight Measurements</h3>
+			<div id="weightMeasurementsInfo"></div>
+			
 		</div>
 	 </div>
 	  
