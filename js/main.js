@@ -14,20 +14,25 @@ function drawChart() {
 	var dayRangeEndDateObj = document.getElementById("dayRangeEndDate");	
 	
 	var startingWeight = parseInt(startingWeightObj.value);
+	//console.log("startingWeight:" + startingWeight);
 	var goalWeight = parseInt(document.getElementById("goalWeight").value);
+	//console.log("goalWeight:" + goalWeight);
 	var weightLossPerWeek = parseInt(document.querySelector('input[name="weightLossPerWeek"]:checked').value);
-	var numberOfWeeks = (startingWeight-goalWeight)/ weightLossPerWeek
+	var weightDiff = startingWeight - goalWeight;
+	//console.log("weightDiff:" + weightDiff);
+	var numberOfWeeks = weightDiff / weightLossPerWeek
+	//console.log("numberOfWeeks:" + numberOfWeeks);
 	var numberOfDays = numberOfWeeks * 7	
 	var timeUnit = document.querySelector('input[name="timeUnit"]');
 	var startingDate = startingDateObj.value;
 	startingDate += " 00:00:00"
 	//console.log("startingDate:" + startingDate.toString());
 	var dt = new Date(startingDate);
-	console.log("dt:" + dt);
+	//console.log("dt:" + dt);
 	if(dt == 'Invalid Date'){	
 		//console.log("invalid date entered");
-		dt = new Date().toISOString().substring(0, 10);
-		startingDateObj.value =  dt;
+		dt = new Date();
+		startingDateObj.value =  formatDate(dt,"/");
 		//console.log("fallback date used: " + dt);		
 	}
 	
@@ -35,6 +40,7 @@ function drawChart() {
 	today = new Date(today);
 	
 	var dayOfProgram = dateDiffInDays(dt,today);
+	
 	console.log("currentDayOfProgram: "+ dayOfProgram);
 	
 	if(dayRangeStartDateObj.value == ""){
@@ -201,23 +207,25 @@ function drawChart() {
 			dayRangeEndDateObj.value = formatDate(endDate,"/");
 		}
 	};
-	document.getElementById('today').innerHTML = today.toString().substring(0,15);
-	//document.getElementById('weeksInfo').innerHTML = numberOfWeeks;
-	document.getElementById('dayOfProgram').innerHTML = dayOfProgram;
-	document.getElementById('daysInfo').innerHTML = numberOfDays;
+	if(isNaN(numberOfDays)){
+		numberOfDays = " starting";
+	}
+	var timeRecap = "Today, " + today.toString().substring(0,15) + ", is day "  + dayOfProgram + " of " + numberOfDays;
+	document.getElementById('timeRecap').innerHTML = timeRecap;
 	document.getElementById('weightMeasurementsInfo').innerHTML = weightMeasurementHtml(weightMeasurements);
 	chart.draw(data, options);
 	storeLocally();
 	
-	//var strWeightM = JSON.stringify(weightMeasurements);
-	//localStorage.setItem("weightMeasurements",strWeightM);
-	//console.log("weightMeasurements: " + strWeightM);
 }
 
 function dateDiffInDays(date1,date2){
-	var timeDiff = Math.abs(date1.getTime() - date2.getTime());
-	var dayDiff = Math.ceil(timeDiff / DAY_MILLISECONDS); 
-	return dayDiff
+	try{
+		var timeDiff = Math.abs(date1.getTime() - date2.getTime());
+		var dayDiff = Math.ceil(timeDiff / DAY_MILLISECONDS); 
+		return dayDiff;
+	}catch(err){
+	
+	}
 }
 
 function getRangeChart(){
@@ -296,12 +304,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	//Listen for add clicks
 	document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurementLS, false);
 	document.getElementById('resetRange').addEventListener('click', resetRange, true);
+	document.getElementById('clearData').addEventListener('click', clearData ,false);
 	
+	document.getElementById('startingDate').addEventListener('input', drawChart, true);
 	document.getElementById('startingWeight').addEventListener('input', drawChart, true);
 	document.getElementById('goalWeight').addEventListener('input', drawChart, true);
 	
 	document.getElementById('dayRangeStartDate').addEventListener('input', function(){getRangeChart();}, true);
 	document.getElementById('dayRangeEndDate').addEventListener('input', function(){getRangeChart();}, true);
+	
+	
 		
 	//default value for weightMeasurement date
 	var today =  new Date();
@@ -385,8 +397,6 @@ function addWeightMeasurementLS() {
 }
 
 function weightMeasurementStorage(dateStr,weight){
-	//var itemKey = "weightMeasurement"+dateStr;
-	//localStorage.setItem(itemKey,weight);
 	
 	var wmsKey = "weightMeasurements";
 	
@@ -402,6 +412,17 @@ function weightMeasurementStorage(dateStr,weight){
 	wms = JSON.stringify(weightMeasurements);
 	localStorage.setItem(wmsKey,wms);
 	
+}
+
+function clearData(){
+	var d = confirm("Clear stored data?");
+    if (d == true) {	   
+       localStorage.clear();
+	   document.getElementById("startingDate").value = "";
+	   document.getElementById("startingWeight").value = "";
+	   document.getElementById("goalWeight").value = "";
+	   location.reload();
+    } 
 }
 
 

@@ -76,6 +76,8 @@ $pad: 20px;
 
 .chartRange{ text-align: left; margin-bottom:20px}
 
+.clearData{ text-align: right; margin-bottom:20px }
+
 table, td, th {
     border: 1px;
 	padding: 15px;

@@ -55,11 +55,11 @@
 				</div>
 				<div class="frmCtrl">
 					<label for="startingWeight">Starting Weight:</label>
-					<input type="number" name="startingWeight" id="startingWeight" value="200" size="3" maxlength="3" />
+					<input type="number" name="startingWeight" id="startingWeight" size="3" maxlength="3" />
 				</div>
 				<div class="frmCtrl">
 					<label for="goalWeight">Goal Weight:</label>
-					<input type="number" name="goalWeight" id="goalWeight" value="180" size="3" maxlength="3"/>
+					<input type="number" name="goalWeight" id="goalWeight" size="3" maxlength="3"/>
 				</div>
 				<div class="frmCtrl rdo">
 					<label for="weightLossPerWeek">Desired Weight Loss per Week:</label>
@@ -99,23 +99,29 @@
 		<div class="col-xs-6 chartRange">
 			<h3>Chart Controls</h3>
 			<!-- Weeks:<span id="weeksInfo"></span><br/> -->
-			Today, <span id="today"></span> is day <span id="dayOfProgram"></span> of <span id="daysInfo"></span> in the program
+			<div id="timeRecap"></div>
 			<br/>
 			<form id="chartRangeFrm" name="chartRangeFrm">
 			
-			<label for="dayRangeStartDate">View Chart from:</label><input id="dayRangeStartDate" type="date" value=""/><label for="dayRangeEndDate"> to:</label><input id="dayRangeEndDate"  type="date" value=""> <input type="button" id="resetRange" value="Reset Range"/>
+			<label for="dayRangeStartDate">View Chart from:</label><input id="dayRangeStartDate" type="date" value=""/><label for="dayRangeEndDate"> to:</label><input id="dayRangeEndDate"  type="date" value=""> <input type="button" id="resetRange" value="Reset Range" class="btn"/>
 			
 			</form>
 		</div>
 		<div class="col-xs-6">
 			<h3>Weight Measurements</h3>
 			<div id="weightMeasurementsInfo"></div>
-			
+			<div class="clearData">
+			<form id="frmClrData">
+				<input type="button" id="clearData" value="Clear Stored Data" class="btn"/>
+			</form>
+			</div>
 		</div>
 	 </div>
+	 
+	 
 	  
       <div class="row">      
-        <p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by former NASA physiologist Laurence Morehouse.</a> He trained the Apollo astronauts, so I like his credentials.</p>
+        <p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by the amazing former NASA physiologist Laurence Morehouse.</a> He helped train the Apollo astronauts, so I like his credentials.</p>
 		<p>Gradual behavioral changes enhance chances for success.</p>
 		<p>How to use: enter the starting date, starting weight, and goal weight. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
 		<p>You will need a scale with decimal point precision.</p>
@@ -131,6 +137,7 @@
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 		<!-- for the chart -->
 		<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
+		
 		<script type="text/javascript" src="js/main.js"></script>
         <script src="js/vendor/bootstrap.min.js"></script>
 		
