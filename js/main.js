@@ -294,6 +294,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurementLS, false);
 	document.getElementById('resetRange').addEventListener('click', resetRange, true);
 	document.getElementById('clearData').addEventListener('click', clearData ,false);
+	document.getElementById('exportData').addEventListener('click', exportData, false);
 	
 	document.getElementById('startingDate').addEventListener('input', drawChart, true);
 	document.getElementById('startingWeight').addEventListener('input', drawChart, true);
@@ -365,55 +366,7 @@ function resetRange(){
 	drawChart();
 }
 
-function addWeightMeasurementLS() {	
 
-    var weighDate = document.querySelector("#weighDate").value;
-	
-	weighDate += " 00:00:00"
-	//console.log("weighDateLS:" + weighDate);
-	//weighDate = weighDate.replace(/-/g,"");
-	//constructing the date like this works across browsers
-	//vs accepting the date string from any browser
-	weighDate = new Date(weighDate);
-	
-	var weightDateFmtLS = formatDateForKey(weighDate);
-	//console.log("weightDateFmtLS:" + weightDateFmtLS);
-    var theWeight = document.querySelector("#weightMeasurement").value;
-	
-	weightMeasurementStorage(weightDateFmtLS,theWeight);
-	drawChart();
-	return;    
-}
-
-function weightMeasurementStorage(dateStr,weight){
-	
-	var wmsKey = "weightMeasurements";
-	
-	if(localStorage.getItem(wmsKey) == null){
-		var wm = new Object();
-		wm['date'] = 'weight';
-		var nwm = JSON.stringify(wm);
-		localStorage.setItem(wmsKey, nwm);
-	}
-	
-	var weightMeasurements = JSON.parse(localStorage.getItem(wmsKey));
-	weightMeasurements[dateStr] = weight;
-	wms = JSON.stringify(weightMeasurements);
-	localStorage.setItem(wmsKey,wms);
-	
-}
-
-function weightMeasurementHtml(weightMeasurements){
-	var html= "<table><tr><th>Date</th><th>Weight</th></tr>";
-	for (var wm in weightMeasurements) {
-		//don't show the json data header
-	    if(wm != "date"){
-			html += "<tr><td>"+ wm.substring(4,6) + "/" + wm.substring(6) + "/" + wm.substring(0,4) +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
-		}
-	}
-	html += "</table>"	
-	return html;
-}
 
 function clearData(){
 	var d = confirm("Clear stored data?");
@@ -426,6 +379,18 @@ function clearData(){
     } 
 }
 
+function exportData(){
+	try{
+		var htmlData = document.getElementById('weightMeasurementsInfo').innerHTML;
+		document.getElementById("downloadLink").href = "data:text/html;charset=utf-8," + escape(htmlData);
+		document.getElementById("downloadLink").download = "apr2aw.xls";
+		document.getElementById("downloadLink").click();
+	}catch(err){
+		var apr2awData =  window.open("/export.html","","",false);
+		apr2awData.document.body.innerHTML = htmlData;
+	}
+	
+}
 
 //using jQuery here
 $(window).resize(function(){
