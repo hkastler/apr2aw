@@ -75,15 +75,23 @@ $pad: 20px;
 .buttonPiece { margin-left:90px }
 
 .chartRange{ text-align: left; margin-bottom:20px}
+#resetRange{float:right;margin-right:110px;}
 
-.exportData{ float: left; }
-.clearData{ float: right; }
+#chartBtns{ margin-top:10px;}
+#dataFrms{ margin-top:10px;}
+
+.exportData{ float: right; }
+.clearData{ float: left; }
 
 table, td, th {
     border: 1px;
-	padding: 15px;
-	width:75%;
+	padding: 5px;
+	width:100%;
+	margin-bottom:10px;
 }
+
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
 
 
 #weightMeasurementsInfo {

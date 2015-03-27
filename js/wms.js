@@ -48,7 +48,7 @@ function getWeightMeasurements(){
 }
 
 function weightMeasurementHtml(weightMeasurements){
-	var html= "<table><tr><th>Date</th><th>Weight</th></tr>";
+	var html= "<table><thead ><tr><th>Date</th><th>Weight</th></tr></thead>";
 	for (var wm in weightMeasurements) {
 		//don't show the json data header
 	    if(wm != "date"){

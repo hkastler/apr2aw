@@ -102,24 +102,28 @@
 			<br/>
 			<form id="chartRangeFrm" name="chartRangeFrm">
 			
-			<label for="dayRangeStartDate">View Chart from:</label><input id="dayRangeStartDate" type="date" value=""/><label for="dayRangeEndDate"> to:</label><input id="dayRangeEndDate"  type="date" value=""> <input type="button" id="resetRange" value="Reset Range" class="btn"/>
+			<label for="dayRangeStartDate">View Chart from:</label><input id="dayRangeStartDate" type="date" value=""/><label for="dayRangeEndDate"> to:</label><input id="dayRangeEndDate"  type="date" value=""> 
 			
+			<div id="chartBtns">
+				<input type="button" id="twoWeekView" value="2 Week View" class="btn"/>
+				<input type="button" id="resetRange" value="Start to End" class="btn"/>
+			</div>
 			</form>
 		</div>
 		<div class="col-xs-6">
 			<h3>Weight Measurements</h3>
 			<div id="weightMeasurementsInfo"></div>
-			<div id="dataFrms">
+			<div id="dataFrms">				
+				<div class="clearData">
+					<form id="frmClrData">
+						<input type="button" id="clearData" value="Clear Stored Data" class="btn"/>
+					</form>
+				</div>
 				<div class="exportData">
 					<form id="frmExportData">
 						<input type="button" id="exportData" value="Export Data" class="btn"/>
 					</form>
 					<a id="downloadLink"  style="display:none;"></a>
-				</div>
-				<div class="clearData">
-					<form id="frmClrData">
-						<input type="button" id="clearData" value="Clear Stored Data" class="btn"/>
-					</form>
 				</div>
 			</div>
 		</div>
@@ -128,7 +132,7 @@
 	 
 	  
       <div class="row">      
-        <p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by the amazing former NASA physiologist Laurence Morehouse.</a> He helped train the Apollo astronauts, so I like his credentials.</p>
+        <p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by former NASA physiologist Laurence Morehouse.</a> He helped train the Apollo astronauts, so I like his credentials.</p>
 		<p>Gradual behavioral changes enhance chances for success.</p>
 		<p>How to use: enter the starting date, starting weight, and goal weight. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
 		<p>You will need a scale with decimal point precision.</p>

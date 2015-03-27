@@ -4,6 +4,12 @@ google.setOnLoadCallback(drawChart);
 //const
 var DAY_MILLISECONDS = 86400000;
 
+//global
+var today = new Date().setHours(0,0,0,0);
+today = new Date(today);
+
+var isChrome = window.chrome;
+
 function drawChart() {
 	//console.log = function() {}
 
@@ -35,9 +41,6 @@ function drawChart() {
 		startingDateObj.value =  formatDate(dt,"/");
 		//console.log("fallback date used: " + dt);		
 	}
-	
-	var today = new Date().setHours(0,0,0,0);
-	today = new Date(today);
 	
 	var dayOfProgram = dateDiffInDays(dt,today);
 	
@@ -121,7 +124,7 @@ function drawChart() {
 			if(isNaN(recordedWeight)){
 				recordedWeight = null;
 			}
-			console.log("recordedWeight:" + recordedWeight);
+			//console.log("recordedWeight:" + recordedWeight);
 			var dateToPlotComp = new Date(dateToPlot);
 					
 			if(dateToPlotComp.getTime() == today.getTime()){
@@ -200,12 +203,7 @@ function drawChart() {
 		var startDate = new Date(dayRangeStartDateObj.value);
 		var endTime = startDate.setTime(startDate.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
 		var endDate = new Date(endTime);
-		var isChrome = window.chrome;
-		if(isChrome){
-			dayRangeEndDateObj.value = formatDateForInput(endDate);
-		}else{
-			dayRangeEndDateObj.value = formatDate(endDate,"/");
-		}
+		setDateFieldValue("dayRangeEndDate",endDate);
 	};
 	if(isNaN(numberOfDays)){
 		numberOfDays = " starting";
@@ -293,6 +291,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	//Listen for add clicks
 	document.querySelector("#addWeightMeasurement").addEventListener("click", addWeightMeasurementLS, false);
 	document.getElementById('resetRange').addEventListener('click', resetRange, true);
+	document.getElementById('twoWeekView').addEventListener('click',  function(){daySpread(7);}, true);
 	document.getElementById('clearData').addEventListener('click', clearData ,false);
 	document.getElementById('exportData').addEventListener('click', exportData, false);
 	
@@ -307,12 +306,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		
 	//default value for weightMeasurement date
 	var today =  new Date();
-	document.getElementById("weighDate").valueAsDate = today;
-	//for non-chrome browsers
-	if(document.getElementById("weighDate").value == ""){
-		document.getElementById("weighDate").value = formatDate(today,"/");
-	}
-	
+	setDateFieldValue("weighDate",today);
+		
  
 }, false);//end of DOMContentLoaded
 
@@ -366,7 +361,35 @@ function resetRange(){
 	drawChart();
 }
 
+function weekSpreadRange(numberOfWeeks){
+	var numberOfDays = numberOfWeeks * 7;
+	daySpread(numberOfDays);
+}
 
+function daySpread(numberOfDays){
+	
+	todayS = new Date(today);
+	var todayE = new Date(today);
+	
+	var startDate = todayS.setTime(today.getTime() - ( DAY_MILLISECONDS * numberOfDays) ) ;
+	setDateFieldValue("dayRangeStartDate",startDate);
+	var endDate = todayE.setTime(today.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
+	console.log("daySpread endDate:" + endDate);
+	setDateFieldValue("dayRangeEndDate", endDate);	
+	drawChart();
+}
+
+function setDateFieldValue(elementId, date){
+	var elementObj = document.getElementById(elementId);
+	date = new Date(date);
+	//console.log("formatDateFieldValues " + date);
+	
+	if(isChrome){
+		elementObj.valueAsDate = date;
+	}else{
+		elementObj.value = formatDate(date,"/");
+	}
+}
 
 function clearData(){
 	var d = confirm("Clear stored data?");
