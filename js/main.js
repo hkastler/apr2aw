@@ -245,17 +245,6 @@ function getRangeChart(){
 	
 }
 
-function weightMeasurementHtml(weightMeasurements){
-	var html= "<table><tr><th>Date</th><th>Weight</th></tr>";
-	for (var wm in weightMeasurements) {
-		html += "<tr><td>"+ wm.substring(4,6) + "/" + wm.substring(6) + "/" + wm.substring(0,4) +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
-	}
-	html += "</table>"
-	
-	return html;
-}
-
-
 function storeLocally(){
 	localStorage.setItem("startingDate", document.getElementById("startingDate").value);
 	localStorage.setItem("startingWeight", document.getElementById("startingWeight").value);
@@ -412,6 +401,18 @@ function weightMeasurementStorage(dateStr,weight){
 	wms = JSON.stringify(weightMeasurements);
 	localStorage.setItem(wmsKey,wms);
 	
+}
+
+function weightMeasurementHtml(weightMeasurements){
+	var html= "<table><tr><th>Date</th><th>Weight</th></tr>";
+	for (var wm in weightMeasurements) {
+		//don't show the json data header
+	    if(wm != "date"){
+			html += "<tr><td>"+ wm.substring(4,6) + "/" + wm.substring(6) + "/" + wm.substring(0,4) +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
+		}
+	}
+	html += "</table>"	
+	return html;
 }
 
 function clearData(){
