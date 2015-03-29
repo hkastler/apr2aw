@@ -70,7 +70,7 @@ function drawChart() {
 	
 	if(localStorage.getItem("weightMeasurements") != null){
 		//console.log("wm:" + localStorage.getItem("weightMeasurements"));
-		weightMeasurements = JSON.parse(localStorage.getItem("weightMeasurements"));
+		weightMeasurements = getWeightMeasurements();
 		//console.log(weightMeasurements);
 	}
 	
@@ -104,7 +104,7 @@ function drawChart() {
 	for (i=dayRangeStart; i <= dayRangeEnd; i++){
 			
 		var dateToPlot = new Date(chartDate.getFullYear(), chartDate.getMonth(), chartDate.getDate(), 0, 0, 0, 0);
-		var dateForKey = formatDateForKey(dateToPlot);
+		var dateForKey = formatDateIsoDate(dateToPlot);
 				
 		if(dateToPlot > today){
 			//no need to get recordedWeight for future
@@ -322,34 +322,6 @@ function formatDate(date,delimiter){
 	if (day < 10) day = "0" + day;
 
 	var theDate = month + delimiter + day + delimiter + year;       
-	return theDate;
-	
-}
-
-function formatDateForKey(date){
-	
-	var day = date.getDate();
-	var month = date.getMonth() + 1;
-	var year = date.getFullYear();
-
-	if (month < 10) month = "0" + month;
-	if (day < 10) day = "0" + day;
-
-	var theDate = year + month + day;       
-	return theDate;
-	
-}
-
-function formatDateForInput(date){
-	
-	var day = date.getDate();
-	var month = date.getMonth() + 1;
-	var year = date.getFullYear();
-
-	if (month < 10) month = "0" + month;
-	if (day < 10) day = "0" + day;
-
-	var theDate = year +"-"+ month +"-"+ day;       
 	return theDate;
 	
 }
