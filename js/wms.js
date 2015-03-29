@@ -38,36 +38,9 @@ function weightMeasurementStorage(dateStr,weight){
 	
 }
 
-//function getWeightMeasurements(){
-//	var weightMeasurements = JSON.parse(localStorage.getItem(wmsKey));
-//	return weightMeasurements;
-//}
-
 
 function getWeightMeasurements(){
 	var weightMeasurements = JSON.parse(localStorage.getItem(wmsKey));
-	
-	/*
-	var newFormatWeightMeasurements = new Object();
-	
-	for (var wm in weightMeasurements){
-		console.log("wm:" + wm);
-		
-		if(wm.indexOf("-") == -1){
-			var newFormatWmKey = wm.substring(0,4) + "-" + wm.substring(4,6) + "-" + wm.substring(6);
-			console.log("newFormatWm: " + newFormatWmKey);
-			newFormatWeightMeasurements[newFormatWmKey] = parseFloat(weightMeasurements[wm]);
-		}
-	}
-	console.log("newWms" + newFormatWeightMeasurements);
-	
-	var wmsStr = JSON.stringify(newFormatWeightMeasurements);
-	console.log("wmsStr: " + wmsStr);
-	
-	//localStorage.setItem(wmsKey, wmsStr);
-	
-	localStorage.setItem("wmsBak", localStorage.getItem(wmsKey));
-	*/
 	return weightMeasurements;
 }
 
