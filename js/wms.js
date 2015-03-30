@@ -26,16 +26,17 @@ function weightMeasurementStorage(dateStr,weight){
 	
 	if(localStorage.getItem(wmsKey) == null){
 		var wm = new Object();
-		wm['date'] = 'weight';
+		wm[dateStr] = parseFloat(weight);
 		var nwm = JSON.stringify(wm);
 		localStorage.setItem(wmsKey, nwm);
+		return;
 	}
 	
 	var weightMeasurements = getWeightMeasurements();
-	weightMeasurements[dateStr] = weight;
+	weightMeasurements[dateStr] = parseFloat(weight);
 	wms = JSON.stringify(weightMeasurements);
 	localStorage.setItem(wmsKey,wms);
-	
+	return;
 }
 
 

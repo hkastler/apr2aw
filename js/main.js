@@ -20,31 +20,28 @@ function drawChart() {
 	var dayRangeEndDateObj = document.getElementById("dayRangeEndDate");	
 	
 	var startingWeight = parseInt(startingWeightObj.value);
-	//console.log("startingWeight:" + startingWeight);
 	var goalWeight = parseInt(document.getElementById("goalWeight").value);
-	//console.log("goalWeight:" + goalWeight);
-	var weightLossPerWeek = parseInt(document.querySelector('input[name="weightLossPerWeek"]:checked').value);
 	var weightDiff = startingWeight - goalWeight;
-	//console.log("weightDiff:" + weightDiff);
-	var numberOfWeeks = weightDiff / weightLossPerWeek
-	//console.log("numberOfWeeks:" + numberOfWeeks);
+	
+	var weightLossPerWeekAry = getCheckedCheckboxesFor("weightLossPerWeek");
+	//console.log("weightLossPerWeekAry:" + weightLossPerWeekAry);
+	var weightLossPerWeek = parseInt(document.querySelector('input[name="weightLossPerWeek"]:checked').value);
+	
+	var numberOfWeeks = weightDiff / weightLossPerWeek	
 	var numberOfDays = numberOfWeeks * 7	
-	var timeUnit = document.querySelector('input[name="timeUnit"]');
+	
 	var startingDate = startingDateObj.value;
 	startingDate += " 00:00:00"
-	//console.log("startingDate:" + startingDate.toString());
-	var dt = new Date(startingDate);
-	//console.log("dt:" + dt);
-	if(dt == 'Invalid Date'){	
-		//console.log("invalid date entered");
-		dt = new Date();
-		startingDateObj.value =  formatDate(dt,"/");
-		//console.log("fallback date used: " + dt);		
+	
+	var strtDt = new Date(startingDate);	
+	if(strtDt == 'Invalid Date'){		
+		strtDt = new Date();
+		startingDateObj.value =  formatDate(strtDt,"/");
 	}
 	
-	var dayOfProgram = dateDiffInDays(dt,today);
+	var dayOfProgram = dateDiffInDays(strtDt,today);
 	
-	console.log("currentDayOfProgram: "+ dayOfProgram);
+	//console.log("currentDayOfProgram: "+ dayOfProgram);
 	
 	if(dayRangeStartDateObj.value == ""){
 		dayRangeStartDateObj.value = startingDateObj.value;
@@ -52,16 +49,16 @@ function drawChart() {
 	
 	var dayRangeStartDateStr =  dayRangeStartDateObj.value + " 00:00:00";
 	var rangeStartDate = new Date(dayRangeStartDateStr);
-	console.log("rangeStartDate:" + rangeStartDate);
-	var dayRangeStart = dateDiffInDays(rangeStartDate,dt);
+	//console.log("rangeStartDate:" + rangeStartDate);
+	var dayRangeStart = dateDiffInDays(rangeStartDate,strtDt);
 	if(isNaN(dayRangeStart)){
 		dayRangeStart = 0;		
 	}
 	
 	var dayRangeEndDateStr =  dayRangeEndDateObj.value + " 00:00:00";
 	var rangeEndDate = new Date(dayRangeEndDateStr);
-	var dayRangeEnd = dateDiffInDays(rangeEndDate, dt);
-	console.log("dayRangeEnd: "+ dayRangeEnd);
+	var dayRangeEnd = dateDiffInDays(rangeEndDate,strtDt);
+	//console.log("dayRangeEnd: "+ dayRangeEnd);
 	if(isNaN(dayRangeEnd)){
 		dayRangeEnd = numberOfDays;
 	}
@@ -69,40 +66,41 @@ function drawChart() {
 	var weightMeasurements = new Object();
 	
 	if(localStorage.getItem("weightMeasurements") != null){
-		//console.log("wm:" + localStorage.getItem("weightMeasurements"));
-		weightMeasurements = getWeightMeasurements();
-		//console.log(weightMeasurements);
+		weightMeasurements = getWeightMeasurements();	
 	}
 	
 	var data = new google.visualization.DataTable();
-	
 	data.addColumn('date','Date');
-	data.addColumn('number', 'Target Weight @' + weightLossPerWeek + "lb per week");
-	data.addColumn({'type': 'string', 'role': 'style'});
-	data.addColumn({type: 'string', role:'annotation'});
-	data.addColumn({type: 'string', role:'annotationText'});
+	//set up the columns that will contain the target weights
+	for( i=0; i < weightLossPerWeekAry.length; i++){
+		//console.log(weightLossPerWeekAry[i]);
+		var weightLossPerWeek = weightLossPerWeekAry[i];
+		data.addColumn('number', 'Target Weight @' + weightLossPerWeek + "lb per week");
+		data.addColumn({'type': 'string', 'role': 'style'});
+	}
 	data.addColumn('number', 'Recorded Weight');
-	data.addColumn({type: 'string', role:'annotation'});
-	data.addColumn({type: 'string', role:'annotationText'});
-	
+	data.addColumn({'type': 'string', 'role': 'style'});
+		
 	var options = {};
 	var ticks = [];
 	var recordedWeight = null;
 	var pointStyle = null;
 	var annotation1 = "";
-	var annotationText1 = "";
-	var annotation2 = "";
-	var annotationText2 = "";
-	//var dayRangeStart = 0;
-	//var dayRangeEnd = numberOfDays;
-	var targetWeight = startingWeight -  ( (weightLossPerWeek/7) * dayRangeStart );
-	//console.log("dt:" + dt);
-	var chartTime = dt.setTime(dt.getTime() + ( DAY_MILLISECONDS * dayRangeStart) ) ;
-	//console.log("chartTime:" + chartTime);
+	
+	var chartTime = strtDt.setTime(strtDt.getTime() + ( DAY_MILLISECONDS * dayRangeStart) ) ;
 	var chartDate = new Date(chartTime);
-			
+	
+	var targetWeight = [];
+	
+	for(h=0; h< weightLossPerWeekAry.length; h++){
+		var weightLossPerWeek = weightLossPerWeekAry[h];
+		var weightLossMultiple = (weightLossPerWeek/7);
+	    targetWeight[weightLossPerWeek] = startingWeight -  ( weightLossMultiple * dayRangeStart );
+	}	
+		
+		
 	for (i=dayRangeStart; i <= dayRangeEnd; i++){
-			
+				
 		var dateToPlot = new Date(chartDate.getFullYear(), chartDate.getMonth(), chartDate.getDate(), 0, 0, 0, 0);
 		var dateForKey = formatDateIsoDate(dateToPlot);
 				
@@ -110,61 +108,52 @@ function drawChart() {
 			//no need to get recordedWeight for future
 			pointStyle = null;
 			recordedWeight = null;
-			annotation1 = null;
-			annotationText1 = null;
-			annotation2 = null;
-			annotationText2 = null;
-			
-			//console.log("added row for future dates:" + added);
 		}else{
 												
-			//console.log("dateToPlot:" + dateToPlot);
-			//recordedWeight = parseFloat(localStorage.getItem("weightMeasurement" + dateForLS));
 			recordedWeight = parseFloat(weightMeasurements[dateForKey]);
 			if(isNaN(recordedWeight)){
 				recordedWeight = null;
 			}
-			//console.log("recordedWeight:" + recordedWeight);
+			
 			var dateToPlotComp = new Date(dateToPlot);
-					
-			if(dateToPlotComp.getTime() == today.getTime()){
-				//console.log("today found");
+			
+			if(dateToPlotComp.getTime() == today.getTime()){				
 				pointStyle =  "point { size: 12; shape-type: star; }";
-				annotation1 = "Today";
-				annotationText1 = "Target Weight: " + targetWeight.toFixed(2);
-				annotation2 = "Today";
-				annotationText2 = "Recorded Weight: " + recordedWeight;
-			}else{
-				//console.log("today:" + today + " dateToPlot: " + dateToPlot);
+				annotation1 = "Today";				
+			}else{				
 				pointStyle = null;
-				annotation1 = null;
-				annotationText = null;
-				annotation2 = null;
-				annotationText2 = null;
+				annotation1 = null;				
 			}
-			//weightMeasurements[dateForKey] = recordedWeight;
+			
 		}
+				
+		var row = data.addRow();
+		data.setCell(row, 0, dateToPlot);
 		
-		var added = data.addRows([
-				[dateToPlot, targetWeight, pointStyle, annotation1, annotationText1, recordedWeight, annotation2, annotationText2]
-		]);
+		var col = 0;
+		for(h=0; h< weightLossPerWeekAry.length; h++){
+			var weightLossPerWeek = weightLossPerWeekAry[h];
+			targetWeight[weightLossPerWeek] = (targetWeight[weightLossPerWeek] - (weightLossPerWeek/7));
+			col = col+1;
+			
+			if(targetWeight[weightLossPerWeek] >= goalWeight){
+				data.setCell(row, col, parseFloat(targetWeight[weightLossPerWeek]));	
+			}else{
+				data.setCell(row, col, null);	
+			}		
+			col = col + 1;
+			data.setCell(row, col, pointStyle);
+
+		}
+		col = col+1;
+		data.setCell(row, col, recordedWeight);
+		data.setCell(row, col+1, pointStyle);
 		
-		targetWeight = (targetWeight - (weightLossPerWeek/7));
 		ticks.push(dateToPlot);
 		chartDate.setTime(chartDate.getTime() + DAY_MILLISECONDS );
-		//console.log("next date: " + dt);
-	}
-	
-	function selectHandler() {
-		var selectedItem = chart.getSelection()[0];
-		console.log(selectedItem);
-		if (selectedItem) {
-			console.log(data);
-		  var value = data.getValue(selectedItem.row, 7);
-			console.log('The user selected ' + value);
-		}
-	  }
-	
+		
+	}	
+			
 	options = {
 		interpolateNulls: true,
 		allowRedraw: true,
@@ -176,20 +165,25 @@ function drawChart() {
 		vAxis: {
 		  title: 'Weight'
 		},
-		
 		series: {
+		
         0: {
           // set any applicable options on the first series
 		  lineWidth: 1,
           pointSize: 1
+		  
         },
         1: {
           // set the options on the second series
           lineWidth: 1,
           pointSize: 2
+        },
+		2: {
+          // set the options on the third series
+          lineWidth: 1,
+          pointSize: 2
         }
-      }
-    
+      }    
 	};
 	
 	
@@ -215,6 +209,17 @@ function drawChart() {
 	storeLocally();
 	
 }
+
+
+function selectHandler() {
+		var selectedItem = chart.getSelection()[0];
+		//console.log(selectedItem);
+		if (selectedItem) {
+			//console.log(data);
+		  var value = data.getValue(selectedItem.row, 7);
+			//console.log('The user selected ' + value);
+		}
+	  }
 
 function dateDiffInDays(date1,date2){
 	try{
@@ -247,8 +252,8 @@ function storeLocally(){
 	localStorage.setItem("startingDate", document.getElementById("startingDate").value);
 	localStorage.setItem("startingWeight", document.getElementById("startingWeight").value);
 	localStorage.setItem("goalWeight",document.getElementById("goalWeight").value);
-	localStorage.setItem("weightLossPerWeek", document.querySelector('input[name="weightLossPerWeek"]:checked').value);
-	localStorage.setItem("timeUnit", document.querySelector('input[name="timeUnit"]').value);
+	localStorage.setItem("weightLossPerWeek", getCheckedCheckboxesFor("weightLossPerWeek"));
+	//localStorage.setItem("timeUnit", document.querySelector('input[name="timeUnit"]').value);
 	localStorage.setItem("dayRangeStartDate",document.getElementById("dayRangeStartDate").value);
 	localStorage.setItem("dayRangeEndDate",document.getElementById("dayRangeEndDate").value);
 	//console.log("data stored locally");
@@ -270,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	//document.getElementById("weightLossPerWeek").value = localStorage.weightLossPerWeek;
 	var weightLossPerWeekRdo = document.apr2awFrm.weightLossPerWeek;
 	for (var i=0; i<weightLossPerWeekRdo.length; i++)  {
-		if (weightLossPerWeekRdo[i].value == localStorage.weightLossPerWeek){
+		if (localStorage.weightLossPerWeek.indexOf(weightLossPerWeekRdo[i].value ) > -1 ){
 			weightLossPerWeekRdo[i].checked = true;
 		}
 	}
@@ -302,14 +307,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	document.getElementById('dayRangeStartDate').addEventListener('input', function(){getRangeChart();}, true);
 	document.getElementById('dayRangeEndDate').addEventListener('input', function(){getRangeChart();}, true);
 	
-	
-		
 	//default value for weightMeasurement date
 	var today =  new Date();
 	setDateFieldValue("weighDate",today);
 		
  
 }, false);//end of DOMContentLoaded
+
+
+//from somewhere on stackoverflow
+function getCheckedCheckboxesFor(checkboxName) {
+    var checkboxes = document.querySelectorAll('input[name="' + checkboxName + '"]:checked')
+	var values = [];
+    Array.prototype.forEach.call(checkboxes, function(el) {
+        values.push(el.value);
+    });
+	//console.log(values);
+    return values;
+}
 
 
 function formatDate(date,delimiter){
