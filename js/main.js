@@ -125,9 +125,9 @@ function drawChart() {
 		data.setCell(row, 0, dateToPlot);
 		
 		var col = 0;
-		for(h=0; h< weightLossPerWeekAry.length; h++){
+		for(j=0; j< weightLossPerWeekAry.length; j++){
 			col = col+1;
-			var weightLossPerWeek = weightLossPerWeekAry[h];
+			var weightLossPerWeek = weightLossPerWeekAry[j];
 			var weightLossMultiple = (weightLossPerWeek/7);
 			targetWeight[weightLossPerWeek] = startingWeight - ( weightLossMultiple * i ); //i = dayRangeStart++ so having it outside the loop was unnecessary
 			
@@ -138,8 +138,6 @@ function drawChart() {
 			}		
 			col = col + 1;
 			data.setCell(row, col, pointStyle);
-			
-
 		}
 		col = col+1;
 		data.setCell(row, col, recordedWeight);
