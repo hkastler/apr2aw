@@ -153,7 +153,13 @@ function drawChart() {
 		chartDate.setTime(chartDate.getTime() + DAY_MILLISECONDS );
 		
 	}	
-			
+	var colors = ["blue","orange","red"];
+	
+	if(weightLossPerWeekAry.length > 1){		
+		colors = ["blue","red","orange"];
+	}
+	
+	
 	options = {
 		interpolateNulls: true,
 		allowRedraw: true,
@@ -165,34 +171,25 @@ function drawChart() {
 		vAxis: {
 		  title: 'Weight'
 		},
+		lineWidth: 2,
+        pointSize: 3,
 		series: {
-		
-        0: {
-          // set any applicable options on the first series
-		  lineWidth: 1,
-          pointSize: 1
-		  
+		//tried to build this as json, didn't quite work
+        "0": {
+          color: colors[0]
         },
-        1: {
-          // set the options on the second series
-          lineWidth: 1,
-          pointSize: 2
+        "1": {
+          color:colors[1]
         },
-		2: {
-          // set the options on the third series
-          lineWidth: 1,
-          pointSize: 2
+		"2": {
+          color:colors[2]
         }
       }    
 	};
 	
 	
 	var chart = new google.visualization.LineChart(document.getElementById('apr2awChart'));
-	//selectHandler impl sometime
-	//google.visualization.events.addListener(chart, 'select', selectHandler);
-	//don't need this yet
-	//data.sort([{column: 0}]);	
-	
+		
 	if(dayRangeEndDateObj.value == ""){
 		var startDate = new Date(dayRangeStartDateObj.value);
 		var endTime = startDate.setTime(startDate.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
