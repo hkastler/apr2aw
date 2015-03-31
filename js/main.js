@@ -92,15 +92,7 @@ function drawChart() {
 	var chartDate = new Date(chartTime);
 	
 	var targetWeight = [];
-	
-	for(h=0; h< weightLossPerWeekAry.length; h++){
-		var weightLossPerWeek = weightLossPerWeekAry[h];
-		var weightLossMultiple = (weightLossPerWeek/7);
-	    targetWeight[weightLossPerWeek] = startingWeight -  ( weightLossMultiple * dayRangeStart );
-		//console.log("targetWeight[" + weightLossPerWeek + "]:" + targetWeight[weightLossPerWeek]);
-	}	
-		
-		
+			
 	for (i=dayRangeStart; i <= dayRangeEnd; i++){
 				
 		var dateToPlot = new Date(chartDate.getFullYear(), chartDate.getMonth(), chartDate.getDate(), 0, 0, 0, 0);
@@ -136,6 +128,9 @@ function drawChart() {
 		for(h=0; h< weightLossPerWeekAry.length; h++){
 			col = col+1;
 			var weightLossPerWeek = weightLossPerWeekAry[h];
+			var weightLossMultiple = (weightLossPerWeek/7);
+			targetWeight[weightLossPerWeek] = startingWeight - ( weightLossMultiple * i ); //i = dayRangeStart++ so having it outside the loop was unnecessary
+			
 			if(targetWeight[weightLossPerWeek] >= goalWeight){
 				data.setCell(row, col, parseFloat(targetWeight[weightLossPerWeek]));	
 			}else{
@@ -144,8 +139,6 @@ function drawChart() {
 			col = col + 1;
 			data.setCell(row, col, pointStyle);
 			
-			//update targetWeight value after record so starting value is correctly set
-			targetWeight[weightLossPerWeek] = (targetWeight[weightLossPerWeek] - (weightLossPerWeek/7));
 
 		}
 		col = col+1;
@@ -192,7 +185,7 @@ function drawChart() {
 	
 	
 	var chart = new google.visualization.LineChart(document.getElementById('apr2awChart'));
-		
+	//replace corechart with line in call above to see this work var chart = new google.charts.Line(document.getElementById('apr2awChart'));	
 	if(dayRangeEndDateObj.value == ""){
 		var startDate = new Date(dayRangeStartDateObj.value);
 		var endTime = startDate.setTime(startDate.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
