@@ -42,18 +42,25 @@ function weightMeasurementStorage(dateStr,weight){
 
 function getWeightMeasurements(){
 	var weightMeasurements = JSON.parse(localStorage.getItem(wmsKey));
+	//this will clean up old data
+	//Object.keys(weightMeasurements).forEach(function (d){ if (d.indexOf("date")!= -1){ delete weightMeasurements[d]; console.log("deleting " + d);}});
 	return weightMeasurements;
 }
 
 function weightMeasurementHtml(weightMeasurements){
 	var html= "<table><thead ><tr><th>Date</th><th>Weight</th></tr></thead>";
-	for (var wm in weightMeasurements) {
-		//don't show the json data header
-	    if(wm.indexOf("date") == -1){
-			var dateParts = wm.split("-");
-			html += "<tr><td>"+ dateParts[1] + "/" + dateParts[2] + "/" + dateParts[0] +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
-		}
-	}
+			
+	Object.keys(weightMeasurements)
+		.sort(function (a, b) {
+				var dateA = new Date(a);
+				var dateB = new Date(b);
+				if (dateA > dateB ) return -1;
+				if (dateA < dateB ) return 1;
+				return 0;
+      }).forEach(function (wm) {
+						var dateParts = wm.split("-");
+						html += "<tr><td>"+ dateParts[1] + "/" + dateParts[2] + "/" + dateParts[0] +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
+					});
 	html += "</table>"	
 	return html;
 }
