@@ -51,6 +51,7 @@ function drawChart() {
 	var rangeStartDate = new Date(dayRangeStartDateStr);
 	//console.log("rangeStartDate:" + rangeStartDate);
 	var dayRangeStart = dateDiffInDays(rangeStartDate,strtDt);
+	//console.log("dayRangeStart:" + dayRangeStart);
 	if(isNaN(dayRangeStart)){
 		dayRangeStart = 0;		
 	}
@@ -96,6 +97,7 @@ function drawChart() {
 		var weightLossPerWeek = weightLossPerWeekAry[h];
 		var weightLossMultiple = (weightLossPerWeek/7);
 	    targetWeight[weightLossPerWeek] = startingWeight -  ( weightLossMultiple * dayRangeStart );
+		//console.log("targetWeight[" + weightLossPerWeek + "]:" + targetWeight[weightLossPerWeek]);
 	}	
 		
 		
@@ -132,10 +134,8 @@ function drawChart() {
 		
 		var col = 0;
 		for(h=0; h< weightLossPerWeekAry.length; h++){
-			var weightLossPerWeek = weightLossPerWeekAry[h];
-			targetWeight[weightLossPerWeek] = (targetWeight[weightLossPerWeek] - (weightLossPerWeek/7));
 			col = col+1;
-			
+			var weightLossPerWeek = weightLossPerWeekAry[h];
 			if(targetWeight[weightLossPerWeek] >= goalWeight){
 				data.setCell(row, col, parseFloat(targetWeight[weightLossPerWeek]));	
 			}else{
@@ -143,6 +143,9 @@ function drawChart() {
 			}		
 			col = col + 1;
 			data.setCell(row, col, pointStyle);
+			
+			//update targetWeight value after record so starting value is correctly set
+			targetWeight[weightLossPerWeek] = (targetWeight[weightLossPerWeek] - (weightLossPerWeek/7));
 
 		}
 		col = col+1;
