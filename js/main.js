@@ -196,6 +196,7 @@ function drawChart() {
 	var timeRecap = "Today, " + today.toString().substring(0,15) + ", is day "  + dayOfProgram + " of " + numberOfDays;
 	document.getElementById('timeRecap').innerHTML = timeRecap;
 	document.getElementById('weightMeasurementsInfo').innerHTML = weightMeasurementHtml(weightMeasurements);
+	
 	chart.draw(data, options);
 	storeLocally();
 	
@@ -297,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	
 	document.getElementById('dayRangeStartDate').addEventListener('input', function(){getRangeChart();}, true);
 	document.getElementById('dayRangeEndDate').addEventListener('input', function(){getRangeChart();}, true);
-	
+		
 	//default value for weightMeasurement date
 	var today =  new Date();
 	setDateFieldValue("weighDate",today);
@@ -352,13 +353,14 @@ function daySpread(numberOfDays){
 	var startDate = todayS.setTime(today.getTime() - ( DAY_MILLISECONDS * numberOfDays) ) ;
 	setDateFieldValue("dayRangeStartDate",startDate);
 	var endDate = todayE.setTime(today.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
-	console.log("daySpread endDate:" + endDate);
+	//console.log("daySpread endDate:" + endDate);
 	setDateFieldValue("dayRangeEndDate", endDate);	
 	drawChart();
 }
 
 function setDateFieldValue(elementId, date){
 	var elementObj = document.getElementById(elementId);
+	//console.log(date);
 	date = new Date(date);
 	//console.log("formatDateFieldValues " + date);
 	

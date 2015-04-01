@@ -59,10 +59,18 @@ function weightMeasurementHtml(weightMeasurements){
 				return 0;
       }).forEach(function (wm) {
 						var dateParts = wm.split("-");
-						html += "<tr><td>"+ dateParts[1] + "/" + dateParts[2] + "/" + dateParts[0] +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
+						html += "<tr class=\"wmtr\" onclick=\" fillWMForm('" + wm + "'," + weightMeasurements[wm] + ")\"><td>"+ dateParts[1] + "/" + dateParts[2] + "/" + dateParts[0] +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
 					});
 	html += "</table>"	
 	return html;
+}
+
+function fillWMForm(dateStr,weight){
+	
+	dateStr += "T00:00:00";
+	//console.log(dateStr);
+	setDateFieldValue('weighDate',dateStr);
+	document.getElementById('weightMeasurement').value = weight;
 }
 
 function formatDateIsoDate(date){
