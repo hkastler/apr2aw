@@ -21,11 +21,8 @@
 		
 		<link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/main.css">
-
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
-		
-		
-    </head>
+	 </head>
     <body>
         <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -46,22 +43,30 @@
     <div class="container">
      
 	  <div class="row">
-		<div class="col-xs-6">
-			<h3>Starting Information</h3>
+		<div class="col-md-6">
+			<div class="panel panel-default">
+			<div class="panel panel-heading"><h3>Starting Information</h3></div>
+			<div class="panel-body">
 			<form id="apr2awFrm" name="apr2awFrm" class="apr2aw-frm">
-				<div class="frmCtrl">
-					<label for="startingDate">Starting Date:</label>
-					<input type="date" name="startingDate" id="startingDate" onchange="drawChart()"/>
+				<div class="form-group">
+					<label for="startingDate" class="control-label">Starting Date:</label>
+					<input type="date" name="startingDate" id="startingDate" onchange="drawChart()" class="form-control"/>
 				</div>
-				<div class="frmCtrl">
+				<div class="from-group">
 					<label for="startingWeight">Starting Weight:</label>
-					<input type="number" name="startingWeight" id="startingWeight" size="3" maxlength="3" />
+					<div class="input-group">
+						<input type="number" name="startingWeight" id="startingWeight" size="3" maxlength="3" class="form-control"/ />
+						<span class="input-group-addon" id="startingWeight-addon">lbs</span>
+					</div>
 				</div>
-				<div class="frmCtrl">
-					<label for="goalWeight">Goal Weight:</label>
-					<input type="number" name="goalWeight" id="goalWeight" size="3" maxlength="3"/>
+				<div class="from-group">
+					<label for="goalWeight" class="control-label">Goal Weight:</label>
+					<div class="input-group">
+						<input type="number" name="goalWeight" id="goalWeight" size="3" maxlength="3" class="form-control"/>
+						<span class="input-group-addon" id="goalWeight-addon">lbs</span>
+					</div>
 				</div>
-				<div class="frmCtrl rdo">
+				<div class="from-group rdo">
 					<label for="weightLossPerWeek">Desired Weight Loss per Week:</label>
 					<!--input type="checkbox" name="weightLossPerWeek" id="weightLossPerWeek" value=".5" onchange="drawChart()"/>.5 -->
 					<input type="checkbox" name="weightLossPerWeek" id="weightLossPerWeek" value="1" onchange="drawChart()"/>1
@@ -76,56 +81,77 @@
 				<br/>
 				<!--input type="button" value="Store Locally" id="storeLocal" onclick="storeLocally()"/ -->
 			</form>
+			</div>
+			</div>
 		</div>
-		<div class="col-xs-6">
-			<h3>Daily Record Weight for chart</h3>
-			<div id="divWeightMeasurementFrm">
-				<form id="weightMeasurementFrm" name="weightMeasurementFrm" class="wtMsrmt-frm">
-					<div class="frmCtrl">
-						<label for="startingDate">Date:</label>
-						<input type="date" name="weighDate" id="weighDate" />
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel panel-heading"><h3>Add Daily Weight Measurement</h3></div>
+				<div class="panel-body">
+					<div id="divWeightMeasurementFrm">
+						<form id="weightMeasurementFrm" name="weightMeasurementFrm" class="wtMsrmt-frm">
+							<div class="from-group">
+								<label for="startingDate" class="control-label">Date:</label>
+								<input type="date" name="weighDate" id="weighDate" class="form-control"/>
+							</div>
+							<div class="from-group">
+								<label for="weight" class="control-label">Weight:</label>
+								<div class="input-group">
+									<input type="number" name="weightMeasurement" id="weightMeasurement" step="any" class="form-control"//>
+									<span class="input-group-addon" id="dailyWeight-addon">lbs</span>
+								</div>
+							</div>
+							<div class="buttonPiece">
+								<input type="button" value="Add Weight Measurement" id="addWeightMeasurement" class="btn btn-default" >
+							</div>
+						</form>
 					</div>
-					<div class="frmCtrl">
-						<label for="weight">Weight:</label>
-						<input type="number" name="weightMeasurement" id="weightMeasurement" step="any"/>
-					</div>
-					<div class="buttonPiece">
-						<input type="button" value="Add Weight Measurement" id="addWeightMeasurement" class="btn" >
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	  </div>
 	  <div class="row">
-		<div class="col-xs-6 chartRange">
-			<h3>Chart Controls</h3>
+		<div class="col-md-6 chartRange">
+			<div class="panel panel-default">
+			<div class="panel panel-heading"><h3>Chart Controls</h3></div>
+			<div class="panel-body">
 			<div id="timeRecap"></div>
 			<br/>
-			<form id="chartRangeFrm" name="chartRangeFrm">
+			<form id="chartRangeFrm" name="chartRangeFrm" class="form">
 			
-			<label for="dayRangeStartDate">View Chart from:</label><input id="dayRangeStartDate" type="date" value=""/><label for="dayRangeEndDate"> to:</label><input id="dayRangeEndDate"  type="date" value=""> 
+			<label for="dayRangeStartDate" class="control-label">View Chart from:</label>
+			<input id="dayRangeStartDate" type="date" value="" class="form-control"/>
+			<label for="dayRangeEndDate" class="control-label"> to:</label>
+			<input id="dayRangeEndDate"  type="date" value="" class="form-control"> 
 			
 			<div id="chartBtns">
-				<input type="button" id="twoWeekView" value="2 Week View" class="btn"/>
-				<input type="button" id="resetRange" value="Start to End" class="btn"/>
+				<input type="button" id="twoWeekView" value="2 Week View" class="btn btn-default"/>
+				<input type="button" id="resetRange" value="Start to End" class="btn btn-default"/>
 			</div>
 			</form>
+			</div>
+			</div>
+			
 		</div>
-		<div class="col-xs-6">
-			<h3>Weight Measurements</h3>
+		<div class="col-md-6">
+			<div class="panel panel-default">
+			<div class="panel panel-heading"><h3>Weight Measurements</h3></div>
+			<div class="panel-body">
 			<div id="weightMeasurementsInfo"></div>
 			<div id="dataFrms">				
 				<div class="clearData">
-					<form id="frmClrData">
-						<input type="button" id="clearData" value="Clear Stored Data" class="btn"/>
+					<form id="frmClrData" class="form">
+						<input type="button" id="clearData" value="Clear Stored Data" class="btn btn-default"/>
 					</form>
 				</div>
 				<div class="exportData">
-					<form id="frmExportData">
-						<input type="button" id="exportData" value="Export Data" class="btn"/>
+					<form id="frmExportData" class="form">
+						<input type="button" id="exportData" value="Export Data" class="btn btn-default"/>
 					</form>
 					<a id="downloadLink"  style="display:none;"></a>
 				</div>
+			</div>
+			</div>
 			</div>
 		</div>
 	 </div>
@@ -133,23 +159,30 @@
 	 
 	  
       <div class="row">      
-        <p>This program is <a href="http://www.amazon.com/Total-Fitness-30-Minutes-Week/dp/0671729934/ref=pd_sim_sbs_b_1?ie=UTF8&refRID=1ZHNJE9BVBZV9YJTSZMF" target="_blank">based on a methodology by former NASA physiologist Laurence Morehouse.</a> He helped train the Apollo astronauts, so I like his credentials.</p>
-		<p>Gradual behavioral changes enhance chances for success.</p>
-		<p>How to use: enter the starting date, starting weight, and goal weight. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
+		<div class="col-md-12">
+		<div class="panel panel-default">
+		<div class="panel-body">
+      	<p>Gradual behavioral changes enhance chances for success.</p>
+		<p>How to use: enter the starting date, starting weight, and goal weight. Weigh yourself every morning before breakfast. You are to adjust food intake or activity so that your weight falls on the line each day. If you are above the line, eat less and/or move more. If you are below the line, you can eat a little more for that day. Morehouse advocates losing only 1 pound per week, but I believe (from personal experience) that up to 2 pounds per week should also be okay. And if you're not on track to lose 2 pounds per week, just go back to a goal of 1 per week.</p>
 		<p>You will need a scale with decimal point precision.</p>
-		<p>Remember: always check with a medical professional before beginning any weight loss program.</p>
+		<p>Remember: always check with your physician before beginning any weight loss program.</p>
 		<p>All data is stored locally, so you'll need to use the same browser each time.</p>
+		</div>
+		</div>
+		</div>
        </div>   
       <hr>
 
       <footer>
         <p>Open Source. MIT License.</p>
       </footer>
-    </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    </div> <!-- /container -->        
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 		<!-- for the chart -->
 		<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>
 		<script type="text/javascript" src="js/wms.js"></script>
+		<script type="text/javascript" src="js/date.format.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
         <script src="js/vendor/bootstrap.min.js"></script>
 		

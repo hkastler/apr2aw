@@ -36,7 +36,7 @@ function drawChart() {
 	var strtDt = new Date(startingDate);	
 	if(strtDt == 'Invalid Date'){		
 		strtDt = new Date();
-		startingDateObj.value =  formatDate(strtDt,"/");
+		startingDateObj.value =  formatDate(strtDt,"mm/dd/yyyy");
 	}
 	
 	var dayOfProgram = dateDiffInDays(strtDt,today);
@@ -81,12 +81,15 @@ function drawChart() {
 	}
 	data.addColumn('number', 'Recorded Weight');
 	data.addColumn({'type': 'string', 'role': 'style'});
+	//data.addColumn({type:'string', role:'annotation'});
+    //data.addColumn({type:'string', role:'annotationText'});
 		
 	var options = {};
 	var ticks = [];
 	var recordedWeight = null;
 	var pointStyle = null;
-	var annotation1 = "";
+	var rwAnnotation = null;
+	var rwAnnotationText = null;
 	
 	var chartTime = strtDt.setTime(strtDt.getTime() + ( DAY_MILLISECONDS * dayRangeStart) ) ;
 	var chartDate = new Date(chartTime);
@@ -97,13 +100,15 @@ function drawChart() {
 				
 		var dateToPlot = new Date(chartDate.getFullYear(), chartDate.getMonth(), chartDate.getDate(), 0, 0, 0, 0);
 		var dateForKey = formatDateIsoDate(dateToPlot);
-				
+		var isToday = false;		
 		if(dateToPlot > today){
 			//no need to get recordedWeight for future
 			pointStyle = null;
 			recordedWeight = null;
+			rwAnnotation = null;
+			rwAnnotationText = null;
 		}else{
-												
+			//recordedWeight here
 			recordedWeight = parseFloat(weightMeasurements[dateForKey]);
 			if(isNaN(recordedWeight)){
 				recordedWeight = null;
@@ -113,18 +118,23 @@ function drawChart() {
 			
 			if(dateToPlotComp.getTime() == today.getTime()){				
 				pointStyle =  "point { size: 12; shape-type: star; }";
-				annotation1 = "Today";				
+				rwAnnotation = "Today";	
+				rwAnnotationText = "";
+				isToday = true;
 			}else{				
 				pointStyle = null;
-				annotation1 = null;				
+				rwAnnotation = null;
+				rwAnnotationText = null;
 			}
 			
 		}
 				
 		var row = data.addRow();
+		//Date col
 		data.setCell(row, 0, dateToPlot);
 		
 		var col = 0;
+		//here's the target weight(s)
 		for(j=0; j< weightLossPerWeekAry.length; j++){
 			col = col+1;
 			var weightLossPerWeek = weightLossPerWeekAry[j];
@@ -132,29 +142,43 @@ function drawChart() {
 			targetWeight[weightLossPerWeek] = startingWeight - ( weightLossMultiple * i ); //i = dayRangeStart++ so having it outside the loop was unnecessary
 			
 			if(targetWeight[weightLossPerWeek] >= goalWeight){
-				data.setCell(row, col, parseFloat(targetWeight[weightLossPerWeek]));	
+				data.setCell(row, col, parseFloat(targetWeight[weightLossPerWeek]));//.toFixed(1) not a good look
 			}else{
 				data.setCell(row, col, null);	
 			}		
 			col = col + 1;
 			data.setCell(row, col, pointStyle);
+			
+			if(isToday){
+				var weightDiff = recordedWeight - targetWeight[weightLossPerWeek] ;
+				rwAnnotationText += "   @" + weightLossPerWeek + ":";
+				if(weightDiff > 0){ rwAnnotationText += "+"; }
+				rwAnnotationText += weightDiff.toFixed(1) + '   ';
+			}
 		}
 		col = col+1;
 		data.setCell(row, col, recordedWeight);
 		data.setCell(row, col+1, pointStyle);
+		//data.setCell(row, col+2, rwAnnotation);
+		//data.setCell(row, col+3, rwAnnotationText);
+		
 		
 		ticks.push(dateToPlot);
 		chartDate.setTime(chartDate.getTime() + DAY_MILLISECONDS );
 		
 	}	
+	
+	
 	var colors = ["blue","orange","red"];
 	
 	if(weightLossPerWeekAry.length > 1){		
 		colors = ["blue","red","orange"];
+	}else if(weightLossPerWeek == 2){
+		colors = ["red","orange","blue"];
 	}
 	
-	
-	options = {
+	//curveType: "function",
+	options = {		
 		interpolateNulls: true,
 		allowRedraw: true,
 		hAxis: {
@@ -183,7 +207,10 @@ function drawChart() {
 	
 	
 	var chart = new google.visualization.LineChart(document.getElementById('apr2awChart'));
-	//replace corechart with line in call above to see this work var chart = new google.charts.Line(document.getElementById('apr2awChart'));	
+	//replace corechart with line in call above to see this work var chart = new google.charts.Line(document.getElementById('apr2awChart'));
+	chart.draw(data, options);
+	google.visualization.events.addListener(chart, 'select', selectHandler);
+	
 	if(dayRangeEndDateObj.value == ""){
 		var startDate = new Date(dayRangeStartDateObj.value);
 		var endTime = startDate.setTime(startDate.getTime() + ( DAY_MILLISECONDS * numberOfDays) ) ;
@@ -196,22 +223,28 @@ function drawChart() {
 	var timeRecap = "Today, " + today.toString().substring(0,15) + ", is day "  + dayOfProgram + " of " + numberOfDays;
 	document.getElementById('timeRecap').innerHTML = timeRecap;
 	document.getElementById('weightMeasurementsInfo').innerHTML = weightMeasurementHtml(weightMeasurements);
+		
+	storeLocally();	
 	
-	chart.draw(data, options);
-	storeLocally();
-	
-}
+	function selectHandler2() {
+      var selection = chart.getSelection();
+      alert('That\'s column no. '+selection[0].row);
+  }
 
 
-function selectHandler() {
+	function selectHandler() {
 		var selectedItem = chart.getSelection()[0];
 		//console.log(selectedItem);
 		if (selectedItem) {
-			//console.log(data);
-		  var value = data.getValue(selectedItem.row, 7);
-			//console.log('The user selected ' + value);
+			console.log(data);
+			var selectedDate = data.getValue(selectedItem.row, 0);			
+			var selectedWeight = data.getValue(selectedItem.row, 1);
+			console.log('The user selected ' + selectedDate.format('isoDate') + ':' + selectedWeight);
 		}
-	  }
+}
+
+}
+
 
 function dateDiffInDays(date1,date2){
 	try{
@@ -319,16 +352,9 @@ function getCheckedCheckboxesFor(checkboxName) {
 }
 
 
-function formatDate(date,delimiter){
+function formatDate(date,mask){
 	
-	var day = date.getDate();
-	var month = date.getMonth() + 1;
-	var year = date.getFullYear();
-
-	if (month < 10) month = "0" + month;
-	if (day < 10) day = "0" + day;
-
-	var theDate = month + delimiter + day + delimiter + year;       
+	var theDate = date.format(mask);       
 	return theDate;
 	
 }
@@ -367,7 +393,7 @@ function setDateFieldValue(elementId, date){
 	if(isChrome){
 		elementObj.valueAsDate = date;
 	}else{
-		elementObj.value = formatDate(date,"/");
+		elementObj.value = formatDate(date,"mm/dd/yyyy");
 	}
 }
 

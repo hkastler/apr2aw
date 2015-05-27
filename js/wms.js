@@ -48,8 +48,7 @@ function getWeightMeasurements(){
 }
 
 function weightMeasurementHtml(weightMeasurements){
-	var html= "<table><thead ><tr><th>Date</th><th>Weight</th></tr></thead>";
-			
+	var html= "<table class='table table-striped'><thead ><tr><th>Date</th><th>Weight</th></tr></thead>";			
 	Object.keys(weightMeasurements)
 		.sort(function (a, b) {
 				var dateA = new Date(a);

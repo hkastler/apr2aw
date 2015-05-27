@@ -83,6 +83,7 @@ $pad: 20px;
 .exportData{ float: right; }
 .clearData{ float: left; }
 
+/*
 table, td, th {
     border: 1px;
 	padding: 5px;
@@ -92,7 +93,7 @@ table, td, th {
 
 tr:nth-child(even) {background: #CCC}
 tr:nth-child(odd) {background: #FFF}
-
+*/
 .wmtr{
 	cursor:pointer;
 }
