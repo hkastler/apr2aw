@@ -31,7 +31,7 @@ function drawChart() {
 	var numberOfDays = numberOfWeeks * 7	
 	
 	var startingDate = startingDateObj.value;
-	startingDate += " 00:00:00"
+	startingDate += " 00:00:00";
 	
 	var strtDt = new Date(startingDate);	
 	if(strtDt == 'Invalid Date'){		

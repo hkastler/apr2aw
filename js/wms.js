@@ -48,7 +48,7 @@ function getWeightMeasurements(){
 }
 
 function weightMeasurementHtml(weightMeasurements){
-	var html= "<table class='table table-striped'><thead ><tr><th>Date</th><th>Weight</th></tr></thead>";			
+	var html= "<table class='table table-striped'><thead ><tr id='header-row' ><th>Date</th><th>Weight</th></tr></thead><tbody id='weightMeasurementsInfoTbody'>";			
 	Object.keys(weightMeasurements)
 		.sort(function (a, b) {
 				var dateA = new Date(a);
@@ -60,7 +60,7 @@ function weightMeasurementHtml(weightMeasurements){
 						var dateParts = wm.split("-");
 						html += "<tr class=\"wmtr\" onclick=\" fillWMForm('" + wm + "'," + weightMeasurements[wm] + ")\"><td>"+ dateParts[1] + "/" + dateParts[2] + "/" + dateParts[0] +"</td><td>" + weightMeasurements[wm] + "</td></tr>"
 					});
-	html += "</table>"	
+	html += "</tbody></table>"	
 	return html;
 }
 
